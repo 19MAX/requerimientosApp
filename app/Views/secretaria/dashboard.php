@@ -10,7 +10,7 @@
                 <p>Registra nuevos trámites, gestiona clientes y realiza el seguimiento de tus solicitudes.</p>
                 <div class="mt-3">
                     <a href="<?= base_url('secretaria/documents') ?>" class="btn btn-dark">Registrar Trámite</a>
-                    <a href="<?= base_url('admin/clients') ?>" class="btn btn-outline-dark ms-2">Gestionar Clientes</a>
+                    <a href="<?= base_url('secretaria/clients') ?>" class="btn btn-outline-dark ms-2">Gestionar Clientes</a>
                 </div>
             </div>
         </div>

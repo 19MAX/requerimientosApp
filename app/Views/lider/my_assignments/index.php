@@ -286,8 +286,8 @@
 
                     <div class="mb-3">
                         <label class="form-label">Adjuntar Archivo de Evidencia (Opcional)</label>
-                        <input type="file" class="form-control" name="report_file" accept=".pdf,.doc,.docx,.jpg,.png">
-                        <small class="text-muted">Formatos permitidos: PDF, Word, JPG, PNG. Máx 5MB.</small>
+                        <input type="file" class="form-control" name="report_file" accept=".pdf,.doc,.docx">
+                        <small class="text-muted">Formatos permitidos: PDF, Word. Máx 5MB.</small>
                     </div>
                 </div>
                 <div class="modal-footer">

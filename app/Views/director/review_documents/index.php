@@ -228,17 +228,17 @@
                 <input type="hidden" name="document_id" id="reassign_document_id">
 
                 <div class="modal-body">
-                    <div class="alert alert-info py-2 small">
+                    <!-- <div class="alert alert-info py-2 small">
                         <i class="fa-solid fa-circle-info me-2"></i>
                         Selecciona si deseas reasignar el documento a un nuevo líder o reabrirlo para devolverlo a
                         revisión.
-                    </div>
+                    </div> -->
 
                     <div class="mb-3 border-bottom pb-3">
                         <label class="form-label fw-bold">Acción a realizar</label>
                         <select class="form-select" name="action" id="reassign_action">
                             <option value="reassign">Reasignar a otro líder</option>
-                            <option value="reopen">Devolver a "En Revisión" (Reabrir)</option>
+                            <!-- <option value="reopen">Devolver a "En Revisión" (Reabrir)</option> -->
                         </select>
                     </div>
 

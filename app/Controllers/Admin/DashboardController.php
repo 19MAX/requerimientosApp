@@ -12,6 +12,7 @@ class DashboardController extends BaseController
         $documentModel = new \App\Models\DocumentModel();
         $userModel = new \App\Models\UsersModel();
         $assignmentModel = new \App\Models\AssignmentModel();
+        $db = \Config\Database::connect();
 
         // 1. Métricas Globales
         $stats = [
@@ -28,6 +29,46 @@ class DashboardController extends BaseController
             'docs_rechazados' => $documentModel->where('status', 'rechazado')->countAllResults(),
         ];
 
+        // 1.1 Datos para gráfico de distribución por estados
+        $chartDataEstados = [
+            $stats['docs_pendientes'],
+            $stats['docs_aprobados'],
+            $stats['docs_ejecucion'],
+            $stats['docs_rechazados']
+        ];
+
+        // 1.2 Datos para gráfico de flujo de trámites (últimos 6 meses por ejemplo, pero lo haremos simple agrupando por mes actual)
+        // Por simplicidad, obtenemos ingresados y completados de los últimos 6 meses
+        $ingresadosPorMes = [];
+        $completadosPorMes = [];
+        $mesesLabels = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $mesDate = date('Y-m', strtotime("-$i months"));
+            $mesNombre = date('M', strtotime("-$i months")); // Jan, Feb...
+            
+            $ingresados = $db->table('documents')
+                ->where("DATE_FORMAT(created_at, '%Y-%m') = '$mesDate'")
+                ->countAllResults();
+
+            // Usamos audit_trail para saber cuándo se completó
+            $completados = $db->table('audit_trail')
+                ->where('entity_type', 'documents')
+                ->where('new_status', 'completado')
+                ->where("DATE_FORMAT(created_at, '%Y-%m') = '$mesDate'")
+                ->countAllResults();
+
+            $ingresadosPorMes[] = $ingresados;
+            $completadosPorMes[] = $completados;
+            $mesesLabels[] = $mesNombre;
+        }
+
+        $chartDataFlujo = [
+            'labels' => $mesesLabels,
+            'ingresados' => $ingresadosPorMes,
+            'completados' => $completadosPorMes
+        ];
+
         // 2. Últimos 5 documentos para la tabla inferior izquierda
         $recentDocs = $documentModel->select('documents.*, users.name as creator_name')
             ->join('users', 'users.id = documents.created_by', 'left')
@@ -35,9 +76,7 @@ class DashboardController extends BaseController
             ->limit(5)
             ->find();
 
-        // 3. Rendimiento de Líderes (Para las barras de progreso inferiores derechas)
-        // Esto es un ejemplo, podrías hacer una consulta SQL agrupada (GROUP BY)
-        $db = \Config\Database::connect();
+        // 3. Rendimiento de Líderes
         $leaderStats = $db->query("
         SELECT u.name, 
                COUNT(a.id) as total, 
@@ -53,7 +92,9 @@ class DashboardController extends BaseController
         return view('admin/dashboard', [
             'stats' => $stats,
             'recent_docs' => $recentDocs,
-            'leader_stats' => $leaderStats
+            'leader_stats' => $leaderStats,
+            'chartDataEstados' => json_encode($chartDataEstados),
+            'chartDataFlujo' => json_encode($chartDataFlujo)
         ]);
     }
 }

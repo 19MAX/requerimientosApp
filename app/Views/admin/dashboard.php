@@ -50,7 +50,7 @@
                                                     por los usuarios.</p>
                                             </div>
                                             <div class="mt-4">
-                                                <a href="<?= base_url('admin/audit') ?>" class="btn btn-white btn-sm">Ir
+                                                <a href="<?= base_url('admin/audit/documents') ?>" class="btn btn-white btn-sm">Ir
                                                     a Auditoría</a>
                                             </div>
                                         </div>
@@ -149,7 +149,7 @@
     </div>
 
     <div class="row g-6 mb-6">
-        <div class="col-xl-8 col-12">
+        <div class="col-xl-12 col-12">
             <div class="card card-lg h-100">
                 <div class="card-body d-flex flex-column gap-5">
                     <div class="mb-4">
@@ -204,7 +204,7 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-12">
+        <!-- <div class="col-xl-4 col-12">
             <div class="card card-lg h-100">
                 <div class="card-body">
                     <h5 class="mb-6">Distribución por Estados</h5>
@@ -264,7 +264,7 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <div class="row g-6 mb-6">
@@ -272,7 +272,7 @@
             <div class="card card-lg h-100">
                 <div class="card-header border-bottom-0 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Últimos Trámites Registrados</h5>
-                    <a href="<?= base_url('secretaria/documents') ?>" class="btn btn-sm btn-light">Ver todos</a>
+                    <!-- <a href="<?= base_url('secretaria/documents') ?>" class="btn btn-sm btn-light">Ver todos</a> -->
                 </div>
                 <div class="table-responsive">
                     <table class="table text-nowrap mb-0 table-centered table-hover">
@@ -344,7 +344,7 @@
                                 ?>
                                 <div>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="fw-semibold text-dark"><?= esc($ls['name']) ?></span>
+                                        <span class="fw-semibold"><?= esc($ls['name']) ?></span>
 
                                         <span class="small text-muted"><?= $ls['completed'] ?>/<?= $ls['total'] ?>
                                             (<?= $percent ?>%)</span>
@@ -367,4 +367,154 @@
         </div>
     </div>
 </div>
+
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var theme = {
+        primary: "var(--bs-primary)",
+        secondary: "var(--bs-secondary)",
+        success: "var(--bs-success)",
+        info: "var(--bs-info)",
+        warning: "var(--bs-warning)",
+        danger: "var(--bs-danger)",
+        dark: "var(--bs-dark)",
+        light: "var(--bs-light)",
+        white: "var(--bs-white)",
+        gray300: "#dee2e6",
+        gray600: "#6c757d"
+    };
+
+    var chartDataFlujo = <?= $chartDataFlujo ?? '{"labels":[], "ingresados":[], "completados":[]}' ?>;
+    var chartDataEstados = <?= $chartDataEstados ?? '[0,0,0,0]' ?>;
+
+    // 1. Chart Ingresados (Total Income Chart)
+    if (document.getElementById("totalIncomeChart")) {
+        var optionsIncome = {
+            series: [{
+                name: "Trámites Ingresados",
+                data: chartDataFlujo.ingresados
+            }],
+            labels: chartDataFlujo.labels,
+            chart: {
+                height: 350,
+                type: "area",
+                toolbar: { show: false },
+                fontFamily: "Public Sans, serif"
+            },
+            dataLabels: { enabled: false },
+            markers: {
+                size: 5,
+                hover: { size: 6, sizeOffset: 3 }
+            },
+            colors: [theme.primary],
+            stroke: { curve: "smooth", width: 2 },
+            grid: {
+                show: true,
+                borderColor: theme.gray300,
+                strokeDashArray: 2
+            },
+            xaxis: {
+                labels: {
+                    show: true,
+                    style: { fontSize: "12px", colors: [theme.gray600] }
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            legend: { show: false },
+            yaxis: {
+                labels: {
+                    show: true,
+                    style: { fontSize: "12px", colors: [theme.gray600] }
+                }
+            }
+        };
+        // Para evitar doble inicialización si vendors/chart.js ya lo inicializó, vaciamos el contenedor
+        document.getElementById("totalIncomeChart").innerHTML = '';
+        new ApexCharts(document.querySelector("#totalIncomeChart"), optionsIncome).render();
+    }
+
+    // 2. Chart Completados (Total Expenses Chart)
+    if (document.getElementById("totalExpensesChart")) {
+        var optionsExpenses = {
+            series: [{
+                name: "Trámites Completados",
+                data: chartDataFlujo.completados
+            }],
+            labels: chartDataFlujo.labels,
+            chart: {
+                height: 350,
+                type: "area",
+                toolbar: { show: false },
+                fontFamily: "Public Sans, serif"
+            },
+            dataLabels: { enabled: false },
+            markers: {
+                size: 5,
+                hover: { size: 6, sizeOffset: 3 }
+            },
+            colors: [theme.success],
+            stroke: { curve: "smooth", width: 2 },
+            grid: {
+                show: true,
+                borderColor: theme.gray300,
+                strokeDashArray: 2
+            },
+            xaxis: {
+                labels: {
+                    show: true,
+                    style: { fontSize: "12px", colors: [theme.gray600] }
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            legend: { show: false },
+            yaxis: {
+                labels: {
+                    show: true,
+                    style: { fontSize: "12px", colors: [theme.gray600] }
+                }
+            }
+        };
+        document.getElementById("totalExpensesChart").innerHTML = '';
+        new ApexCharts(document.querySelector("#totalExpensesChart"), optionsExpenses).render();
+    }
+
+    // 3. Chart Donut Distribución de Estados (Total Sale)
+    if (document.getElementById("totalSale")) {
+        var optionsSale = {
+            series: chartDataEstados,
+            labels: ["Pendientes", "Aprobados", "En Ejecución", "Rechazados"],
+            colors: [theme.warning, theme.info, theme.primary, theme.danger],
+            chart: {
+                type: "donut",
+                height: 377,
+                fontFamily: "Public Sans, serif"
+            },
+            legend: { show: false },
+            dataLabels: {
+                enabled: true,
+                dropShadow: { blur: 0, opacity: 0 }
+            },
+            plotOptions: {
+                pie: {
+                    donut: { size: "65%" }
+                }
+            },
+            stroke: { width: 0 },
+            responsive: [{
+                breakpoint: 1400,
+                options: {
+                    chart: { type: "donut", width: 290, height: 330 }
+                }
+            }]
+        };
+        document.getElementById("totalSale").innerHTML = '';
+        new ApexCharts(document.querySelector("#totalSale"), optionsSale).render();
+    }
+});
+</script>
 <?= $this->endSection() ?>
