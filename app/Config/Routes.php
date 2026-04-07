@@ -6,6 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Auth::login');
+$routes->get('consulta-requerimientos', 'PublicConsultController::index');
 
 //Rutas de autenticación
 $routes->get('login', 'Auth::login');
