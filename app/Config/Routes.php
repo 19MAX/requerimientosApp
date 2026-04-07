@@ -30,6 +30,8 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
         $routes->post('delete', 'Admin\ClientsController::delete');
     });
     $routes->get('audit', 'Admin\AuditController::index');
+    $routes->get('audit/assignments', 'Admin\AuditController::assignmentStatus');
+    $routes->get('audit/documents', 'Admin\AuditController::documentChanges');
     $routes->get('profile', 'Admin\ProfileController::index');
     $routes->post('profile/update-info', 'Admin\ProfileController::updateInfo');
     $routes->post('profile/update-password', 'Admin\ProfileController::updatePassword');

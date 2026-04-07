@@ -1,13 +1,29 @@
 <?= $this->extend('layout/main') ?>
 
 <?= $this->section('content') ?>
+<?php
+$moduleKey = $moduleKey ?? 'assignment_status';
+$moduleTitle = $moduleTitle ?? 'Registro de Auditoría';
+$moduleDescription = $moduleDescription ?? 'Historial de acciones realizadas en el sistema.';
+$summaryCards = $summaryCards ?? [];
+?>
 <div class="custom-container">
     <div class="row mb-6 align-items-center">
         <div class="col-xl-8 col-lg-6">
-            <h1 class="fs-3 mb-0">Registro de Auditoría</h1>
-            <p class="mb-0 text-muted">Historial completo de acciones realizadas en el sistema.</p>
+            <h1 class="fs-3 mb-0"><?= esc($moduleTitle) ?></h1>
+            <p class="mb-0 text-muted"><?= esc($moduleDescription) ?></p>
         </div>
-        <div class="col-xl-4 col-lg-6 text-lg-end mt-3 mt-lg-0">
+        <div class="col-xl-4 col-lg-6 mt-3 mt-lg-0">
+            <div class="d-flex justify-content-lg-end gap-2 mb-2">
+                <a href="<?= base_url('admin/audit/documents') ?>"
+                    class="btn btn-sm <?= $moduleKey === 'documents' ? 'btn-dark' : 'btn-white' ?>">
+                    Documentos
+                </a>
+                <a href="<?= base_url('admin/audit/assignments') ?>"
+                    class="btn btn-sm <?= $moduleKey === 'assignment_status' ? 'btn-dark' : 'btn-white' ?>">
+                    Asignaciones
+                </a>
+            </div>
             <span class="badge bg-dark-subtle fs-6 px-3 py-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
@@ -15,7 +31,7 @@
                     <path d="M12 6l0 6l3 3" />
                     <circle cx="12" cy="12" r="9" />
                 </svg>
-                <?= number_format(count($auditLogs)) ?> registros
+                <?= number_format(count($auditLogs ?? [])) ?> registros
             </span>
         </div>
     </div>
@@ -28,81 +44,59 @@
     <?php endif; ?>
 
     <!-- Tarjetas de resumen rápido -->
-    <div class="row g-4 mb-6">
-        <div class="col-md-3">
-            <div class="card card-sm border-0 shadow-sm">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="icon-shape icon-lg rounded-3 bg-primary-subtle text-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Requerimientos creados</p>
-                        <h4 class="mb-0"><?= $stats['documents_created'] ?? 0 ?></h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card card-sm border-0 shadow-sm">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="icon-shape icon-lg rounded-3 bg-success-subtle text-success">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M5 12l5 5l10 -10" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Completados</p>
-                        <h4 class="mb-0"><?= $stats['completed'] ?? 0 ?></h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card card-sm border-0 shadow-sm">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="icon-shape icon-lg rounded-3 bg-warning-subtle text-warning">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 9v4" />
-                            <path
-                                d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
-                            <path d="M12 16h.01" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Cambios de estado</p>
-                        <h4 class="mb-0"><?= $stats['status_changes'] ?? 0 ?></h4>
+    <?php if (!empty($summaryCards)): ?>
+        <div class="row g-4 mb-6">
+            <?php foreach ($summaryCards as $card): ?>
+                <?php $icon = $card['icon'] ?? 'status'; ?>
+                <div class="col-md-3">
+                    <div class="card card-sm border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="icon-shape icon-lg rounded-3 <?= esc($card['tone'] ?? 'bg-secondary-subtle text-secondary') ?>">
+                                <?php if ($icon === 'file'): ?>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                    </svg>
+                                <?php elseif ($icon === 'check'): ?>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M5 12l5 5l10 -10" />
+                                    </svg>
+                                <?php elseif ($icon === 'users'): ?>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <circle cx="12" cy="7" r="4" />
+                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                    </svg>
+                                <?php else: ?>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 9v4" />
+                                        <path
+                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                        <path d="M12 16h.01" />
+                                    </svg>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small"><?= esc($card['label'] ?? '') ?></p>
+                                <h4 class="mb-0"><?= number_format((int) ($card['value'] ?? 0)) ?></h4>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php endforeach; ?>
         </div>
-        <div class="col-md-3">
-            <div class="card card-sm border-0 shadow-sm">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="icon-shape icon-lg rounded-3 bg-info-subtle text-info">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <circle cx="12" cy="7" r="4" />
-                            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Usuarios activos</p>
-                        <h4 class="mb-0"><?= $stats['active_users'] ?? 0 ?></h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php endif; ?>
 
     <!-- Tabla principal -->
     <div class="row g-6 mb-6">
@@ -213,6 +207,10 @@
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">No hay registros para este módulo.</td>
+                                </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
