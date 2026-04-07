@@ -12,7 +12,6 @@ class DashboardController extends BaseController
     protected $documentModel;
     protected $userModel;
     protected $assignmentModel;
-    protected $usersModel;
     protected $db;
 
     public function __construct()
@@ -20,14 +19,33 @@ class DashboardController extends BaseController
         $this->documentModel = new DocumentModel();
         $this->userModel = new UsersModel();
         $this->assignmentModel = new AssignmentModel();
-        $this->usersModel = new UsersModel();
-        $this->db = \Config\Database::connect(); // Instancia para usar transacciones
+        $this->db = \Config\Database::connect();
         helper(['status', 'formatDate']);
     }
 
     public function index()
     {
-        return view('director/dashboard');
+        // Métricas para el Director
+        $stats = [
+            'total_documents' => $this->documentModel->countAllResults(),
+            'pending_review' => $this->documentModel->whereIn('status', ['pendiente', 'en_revision'])->countAllResults(),
+            'approved_not_assigned' => $this->documentModel->where('status', 'aprobado')->countAllResults(),
+            'in_execution' => $this->documentModel->where('status', 'asignado')->countAllResults(),
+            'completed' => $this->documentModel->where('status', 'completado')->countAllResults(),
+            'rejected' => $this->documentModel->where('status', 'rechazado')->countAllResults(),
+        ];
+
+        // Últimos documentos
+        $recentDocs = $this->documentModel->select('documents.*, users.name as creator_name')
+            ->join('users', 'users.id = documents.created_by', 'left')
+            ->orderBy('documents.created_at', 'DESC')
+            ->limit(5)
+            ->find();
+
+        return view('director/dashboard', [
+            'stats' => $stats,
+            'recent_docs' => $recentDocs
+        ]);
     }
 
     public function reviewDocuments()
@@ -176,7 +194,7 @@ class DashboardController extends BaseController
             ]);
         }
 
-        $clients = $this->usersModel
+        $clients = $this->userModel
             ->groupStart()
             ->like('name', $q, 'both')
             ->orLike('email', $q, 'both')

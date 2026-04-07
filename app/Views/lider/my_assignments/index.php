@@ -23,6 +23,87 @@
     <?php endif; ?>
 
     <div class="row g-6 mb-6">
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-lg">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h4 class="mb-0"><?= esc($stats['total'] ?? 0) ?></h4>
+                            <p class="mb-0 text-muted">Total Asignaciones</p>
+                        </div>
+                        <div class="icon-shape icon-md bg-primary-subtle text-primary rounded-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-list-check">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
+                                <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
+                                <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />
+                                <path d="M11 6l9 0" />
+                                <path d="M11 12l9 0" />
+                                <path d="M11 18l9 0" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-lg">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h4 class="mb-0"><?= esc($stats['pending'] ?? 0) ?></h4>
+                            <p class="mb-0 text-muted">Pendientes</p>
+                        </div>
+                        <div class="icon-shape icon-md bg-warning-subtle text-warning-emphasis rounded-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                                <path d="M12 7v5l3 3" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-lg">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h4 class="mb-0"><?= esc($stats['in_progress'] ?? 0) ?></h4>
+                            <p class="mb-0 text-muted">En Progreso</p>
+                        </div>
+                        <div class="icon-shape icon-md bg-info-subtle text-info-emphasis rounded-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-player-play">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M7 4v16l13 -8z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card card-lg">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h4 class="mb-0"><?= esc($stats['completed'] ?? 0) ?></h4>
+                            <p class="mb-0 text-muted">Completadas</p>
+                        </div>
+                        <div class="icon-shape icon-md bg-success-subtle text-success-emphasis rounded-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M5 12l5 5l10 -10" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-6 mb-6">
         <div class="col-12">
             <div class="card card-lg">
                 <div class="card-header border-bottom-0">

@@ -92,16 +92,15 @@ class PublicConsultController extends BaseController
         if (!empty($document['reviewed_at'])) {
             $history[] = [
                 'date' => $document['reviewed_at'],
-                'title' => 'Revisión de dirección',
+                'title' => 'Revisión técnica',
                 'description' => $document['status'] === 'rechazado'
-                    ? 'Requerimiento rechazado. ' . ($document['review_notes'] ?? '')
-                    : 'Requerimiento revisado por dirección.',
+                    ? 'El requerimiento no fue aprobado tras la revisión inicial. ' . ($document['review_notes'] ?? '')
+                    : 'El requerimiento superó la revisión técnica inicial.',
             ];
         }
 
         $documentStatusChanges = $this->db->table('audit_trail at')
-            ->select('at.old_status, at.new_status, at.description, at.created_at, u.name as changed_by_name')
-            ->join('users u', 'u.id = at.user_id', 'left')
+            ->select('at.old_status, at.new_status, at.description, at.created_at')
             ->where('at.entity_type', 'documents')
             ->where('at.entity_id', $documentId)
             ->where('at.old_status IS NOT NULL', null, false)
@@ -111,30 +110,19 @@ class PublicConsultController extends BaseController
             ->getResultArray();
 
         foreach ($documentStatusChanges as $change) {
-            $fromStatus = $this->statusLabel($change['old_status'] ?? null);
             $toStatus = $this->statusLabel($change['new_status'] ?? null);
 
-            $description = "El requerimiento pasó de '{$fromStatus}' a '{$toStatus}'.";
-
-            if (!empty($change['description'])) {
-                $description .= ' ' . $change['description'];
-            }
-
-            if (!empty($change['changed_by_name'])) {
-                $description .= ' Responsable: ' . $change['changed_by_name'] . '.';
-            }
+            $description = "El estado del requerimiento cambió a '{$toStatus}'.";
 
             $history[] = [
                 'date' => $change['created_at'],
-                'title' => 'Cambio de estado del requerimiento',
+                'title' => 'Actualización de estado',
                 'description' => $description,
             ];
         }
 
         $assignments = $this->db->table('assignments a')
-            ->select('a.*, u1.name as director_name, u2.name as lider_name')
-            ->join('users u1', 'u1.id = a.assigned_by', 'left')
-            ->join('users u2', 'u2.id = a.assigned_to', 'left')
+            ->select('a.*')
             ->where('a.document_id', $documentId)
             ->orderBy('a.assigned_at', 'ASC')
             ->get()
@@ -144,91 +132,33 @@ class PublicConsultController extends BaseController
             if (!empty($assignment['assigned_at'])) {
                 $history[] = [
                     'date' => $assignment['assigned_at'],
-                    'title' => 'Asignación a líder de área',
-                    'description' => 'Asignado a ' . ($assignment['lider_name'] ?? 'N/D') . ' por ' . ($assignment['director_name'] ?? 'N/D') . '.',
+                    'title' => 'Asignación de área',
+                    'description' => 'El requerimiento ha sido derivado al área técnica correspondiente para su gestión.',
                 ];
             }
 
             if (!empty($assignment['started_at'])) {
                 $history[] = [
                     'date' => $assignment['started_at'],
-                    'title' => 'Trabajo iniciado',
-                    'description' => ($assignment['lider_name'] ?? 'El líder') . ' inició la gestión del requerimiento.',
+                    'title' => 'Gestión iniciada',
+                    'description' => 'El equipo técnico ha iniciado los trabajos relacionados con este requerimiento.',
                 ];
             }
 
             if (!empty($assignment['completed_at'])) {
                 $history[] = [
                     'date' => $assignment['completed_at'],
-                    'title' => 'Actividad completada',
-                    'description' => ($assignment['lider_name'] ?? 'El líder') . ' reportó la actividad como completada.',
+                    'title' => 'Gestión finalizada',
+                    'description' => 'Se ha completado la gestión técnica del requerimiento.',
                 ];
             }
-        }
-
-        $assignmentIds = array_column($assignments, 'id');
-
-        if (!empty($assignmentIds)) {
-            $assignmentStatusChanges = $this->db->table('audit_trail at')
-                ->select('at.entity_id, at.old_status, at.new_status, at.description, at.created_at, u.name as changed_by_name')
-                ->join('users u', 'u.id = at.user_id', 'left')
-                ->where('at.entity_type', 'assignments')
-                ->whereIn('at.entity_id', $assignmentIds)
-                ->where('at.old_status IS NOT NULL', null, false)
-                ->where('at.new_status IS NOT NULL', null, false)
-                ->orderBy('at.created_at', 'ASC')
-                ->get()
-                ->getResultArray();
-
-            foreach ($assignmentStatusChanges as $change) {
-                $fromStatus = $this->statusLabel($change['old_status'] ?? null);
-                $toStatus = $this->statusLabel($change['new_status'] ?? null);
-                $description = "La asignación pasó de '{$fromStatus}' a '{$toStatus}'.";
-
-                if (!empty($change['description'])) {
-                    $description .= ' ' . $change['description'];
-                }
-
-                if (!empty($change['changed_by_name'])) {
-                    $description .= ' Responsable: ' . $change['changed_by_name'] . '.';
-                }
-
-                $history[] = [
-                    'date' => $change['created_at'],
-                    'title' => 'Cambio de estado de asignación',
-                    'description' => $description,
-                ];
-            }
-        }
-
-        $logs = $this->db->table('assignment_logs al')
-            ->select('al.*, uc.name as changed_by_name, uf.name as from_name, ut.name as to_name')
-            ->join('users uc', 'uc.id = al.changed_by', 'left')
-            ->join('users uf', 'uf.id = al.from_user_id', 'left')
-            ->join('users ut', 'ut.id = al.to_user_id', 'left')
-            ->where('al.document_id', $documentId)
-            ->orderBy('al.created_at', 'DESC')
-            ->get()
-            ->getResultArray();
-
-        foreach ($logs as $log) {
-            $description = $log['notes'] ?? '';
-            if ($log['action'] === 'reasignado') {
-                $description = 'De ' . ($log['from_name'] ?? 'N/D') . ' a ' . ($log['to_name'] ?? 'N/D') . '. ' . $description;
-            }
-
-            $history[] = [
-                'date' => $log['created_at'],
-                'title' => $this->resolveLogTitle($log['action']),
-                'description' => trim(($description ?: 'Sin detalle adicional.') . ' Responsable: ' . ($log['changed_by_name'] ?? 'N/D') . '.'),
-            ];
         }
 
         if (!empty($report['created_at'])) {
             $history[] = [
                 'date' => $report['created_at'],
-                'title' => 'Documento final cargado',
-                'description' => !empty($report['comment']) ? $report['comment'] : 'Se registró el documento final del líder de área.',
+                'title' => 'Resultado disponible',
+                'description' => 'El documento de respuesta o evidencia ha sido cargado al sistema.',
             ];
         }
 
@@ -237,16 +167,6 @@ class PublicConsultController extends BaseController
         });
 
         return $history;
-    }
-
-    private function resolveLogTitle(string $action): string
-    {
-        return match ($action) {
-            'reasignado' => 'Reasignación',
-            'creado' => 'Creación de asignación',
-            'estado_documento' => 'Cambio de estado del documento',
-            default => ucfirst(str_replace('_', ' ', $action)),
-        };
     }
 
     private function statusLabel(?string $status): string

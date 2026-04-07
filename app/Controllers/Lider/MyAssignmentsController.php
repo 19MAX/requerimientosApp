@@ -37,8 +37,17 @@ class MyAssignmentsController extends BaseController
             ->orderBy('assignments.created_at', 'DESC')
             ->findAll();
 
+        // Estadísticas para el líder
+        $stats = [
+            'total' => count($assignments),
+            'pending' => $this->assignmentModel->where('assigned_to', $userId)->where('status', 'pendiente')->countAllResults(),
+            'in_progress' => $this->assignmentModel->where('assigned_to', $userId)->where('status', 'en_progreso')->countAllResults(),
+            'completed' => $this->assignmentModel->where('assigned_to', $userId)->where('status', 'completada')->countAllResults(),
+        ];
+
         return view('lider/my_assignments/index', [
-            'assignments' => $assignments
+            'assignments' => $assignments,
+            'stats' => $stats
         ]);
     }
 

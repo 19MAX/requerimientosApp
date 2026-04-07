@@ -69,7 +69,7 @@ $routes->group('director', ['filter' => ['auth', 'role:director']], function ($r
 
 // Rutas de LÍDER DE ÁREA
 $routes->group('lider', ['filter' => ['auth', 'role:lider_area']], function ($routes) {
-    $routes->get('/', 'Lider\MyAssignmentsController::index');
+    $routes->get('/', 'Lider\DashboardController::index');
     // Vista principal de tareas
     $routes->get('my-assignments', 'Lider\MyAssignmentsController::index');
 
