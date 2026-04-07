@@ -102,13 +102,26 @@ class DashboardController extends BaseController
                 return redirect()->to('director/review-documents')->with('error', 'Este documento ya fue procesado anteriormente.');
             }
 
+            $oldStatus = $document['status'];
+            $directorName = session()->get('name') ?? 'Director';
+
             // Actualizar el documento
+            $this->db->transStart();
             $this->documentModel->update($documentId, [
                 'status' => $status,
                 'reviewed_by' => session()->get('user_id'),
                 'reviewed_at' => date('Y-m-d H:i:s'),
                 'review_notes' => $notes
             ]);
+
+            audit_status_change(
+                entityType: 'documents',
+                entityId: $documentId,
+                oldStatus: $oldStatus,
+                newStatus: $status,
+                description: "Director '{$directorName}' cambió el estado de '{$oldStatus}' a '{$status}'."
+            );
+            $this->db->transComplete();
 
             $mensaje = $status === 'aprobado' ? 'Documento aprobado. Ahora puedes asignarlo.' : 'Documento rechazado y devuelto a secretaría.';
 
@@ -147,6 +160,8 @@ class DashboardController extends BaseController
 
             // INICIO DE TRANSACCIÓN: Nos aseguramos de que ambas cosas pasen o ninguna
             $this->db->transStart();
+            $directorName = session()->get('name') ?? 'Director';
+            $oldDocumentStatus = $document['status'];
 
             // 1. Crear el registro en la tabla assignments
             $assignmentData = [
@@ -161,10 +176,18 @@ class DashboardController extends BaseController
 
             $this->assignmentModel->insert($assignmentData);
 
-            // 2. Actualizar el estado del documento a 'en_ejecucion'
+            // 2. Actualizar el estado del documento a 'asignado'
             $this->documentModel->update($documentId, [
                 'status' => 'asignado',
             ]);
+
+            audit_status_change(
+                entityType: 'documents',
+                entityId: $documentId,
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'asignado',
+                description: "Director '{$directorName}' cambió el estado de '{$oldDocumentStatus}' a 'asignado'."
+            );
 
             // COMPLETAR TRANSACCIÓN
             $this->db->transComplete();

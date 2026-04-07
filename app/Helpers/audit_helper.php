@@ -103,6 +103,15 @@ if (! function_exists('audit_status_change')) {
             newValues: $newValues ?? ['status' => $newStatus],
             description: $description ?? "Estado cambiado de '" . audit_humanize_status($oldStatus) . "' a '" . audit_humanize_status($newStatus) . "'."
         );
+
+        // Disparar envío de correo cuando cambie el estado de un documento
+        if ($entityType === 'documents' && $newStatus !== null) {
+            try {
+                \App\Services\EmailService::notifyDocumentStatusChange($entityId, $oldStatus, $newStatus);
+            } catch (\Throwable $e) {
+                log_message('error', '[EmailService] Falló el envío de correo de estado. DocID: ' . $entityId . '. Error: ' . $e->getMessage());
+            }
+        }
     }
 }
 

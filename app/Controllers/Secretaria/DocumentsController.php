@@ -136,6 +136,13 @@ class DocumentsController extends BaseController
                 ]);
             }
 
+            // Notificar al cliente vía correo electrónico el registro exitoso
+            try {
+                \App\Services\EmailService::notifyDocumentRegistration($documentId);
+            } catch (\Throwable $e) {
+                log_message('error', '[EmailService] Falló el envío de correo de registro inicial. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
+            }
+
             return redirect()->to('secretaria/documents')->with('success', [
                 'text' => "Documento {$documentCode} creado correctamente.",
                 'position' => 'top-end',
@@ -466,5 +473,4 @@ class DocumentsController extends BaseController
                 ]);
         }
     }
-
 }
