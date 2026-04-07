@@ -10,8 +10,14 @@
                 <div class="text-center">
                     <a href="../../index.html"
                         class="fs-2 fw-bold d-flex align-items-center gap-2 justify-content-center mb-6">
-                        <img src="../../assets/images/brand/logo/logo-icon.svg" alt="" />
-                        <span>CNEL</span>
+                        <?php if (!empty($global_settings['site_logo'])): ?>
+                            <img src="<?= base_url('uploads/logos/' . esc($global_settings['site_logo'])) ?>"
+                                class="img-fluid" alt="Logo" style="max-height: 40px; width: auto;">
+                        <?php else: ?>
+                            <img src="<?= base_url('dist/assets/images/brand/logo/logo-icon.svg') ?>" class="img-fluid"
+                                alt="Logo" style="max-height: 40px; width: auto;">
+                        <?php endif; ?>
+                        <span><?= esc($global_settings['site_name'] ?? 'CNEL') ?></span>
                     </a>
                     <h1 class="mb-1">Bienvenido de nuevo</h1>
                     <!-- <p class="mb-0">
@@ -37,8 +43,8 @@
                             <div class="mb-3">
                                 <label for="formSignUpPassword" class="form-label">Password</label>
                                 <div class="password-field position-relative">
-                                    <input name="password" type="password" class="form-control fakePassword" id="formSignUpPassword"
-                                        required />
+                                    <input name="password" type="password" class="form-control fakePassword"
+                                        id="formSignUpPassword" required />
                                     <span><i class="ti ti-eye-off passwordToggler"></i></span>
                                     <div class="invalid-feedback">Ingresa tu contraseña</div>
                                 </div>
@@ -56,6 +62,11 @@
                             <div class="mb-5"></div>
                             <div class="d-grid">
                                 <button class="btn btn-primary" type="submit">Iniciar sesión</button>
+                            </div>
+                            <div class="d-grid mt-3">
+                                <a href="<?= base_url('consulta-requerimientos') ?>" class="btn btn-outline-secondary">
+                                    Consulta de trámite
+                                </a>
                             </div>
                         </form>
 
@@ -121,5 +132,26 @@
         </ul>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggler = document.querySelector(".passwordToggler");
+        const passwordInput = document.querySelector("#formSignUpPassword");
+
+        toggler.addEventListener("click", function () {
+            const type = passwordInput.getAttribute("type");
+
+            if (type === "password") {
+                passwordInput.setAttribute("type", "text");
+                this.classList.remove("ti-eye-off");
+                this.classList.add("ti-eye");
+            } else {
+                passwordInput.setAttribute("type", "password");
+                this.classList.remove("ti-eye");
+                this.classList.add("ti-eye-off");
+            }
+        });
+    });
+</script>
 
 <?= $this->endSection() ?>
