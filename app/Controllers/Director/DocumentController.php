@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\AssignmentModel;
 use App\Models\DocumentModel;
 use App\Models\UsersModel;
+use AuditActions;
 
 class DocumentController extends BaseController
 {
@@ -22,7 +23,7 @@ class DocumentController extends BaseController
         $this->assignmentModel = new AssignmentModel();
         $this->usersModel = new UsersModel();
         $this->db = \Config\Database::connect(); // Instancia para usar transacciones
-        helper(['status', 'formatDate']);
+        helper(['status', 'formatDate', 'audit']);
     }
 
     public function index()
@@ -127,6 +128,8 @@ class DocumentController extends BaseController
 
         try {
             $this->db->transStart();
+            $oldDocumentStatus = $document['status'];
+            $directorName = session()->get('name') ?? 'Director';
 
             // 1. Marcar documento como aprobado
             $this->documentModel->update($documentId, [
@@ -134,6 +137,13 @@ class DocumentController extends BaseController
                 'reviewed_by' => session()->get('user_id'),
                 'reviewed_at' => date('Y-m-d H:i:s'),
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: $documentId,
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'aprobado',
+                description: "Director '{$directorName}' cambió el estado de '{$oldDocumentStatus}' a 'aprobado'."
+            );
 
             // 1.1 Verificar si existe la asignación
 
@@ -145,6 +155,7 @@ class DocumentController extends BaseController
             // 1.2 Si ya existe una asignación activa, no crear una nueva, solo actualizar la existente
 
             if ($asignacionExistente) {
+                $oldAssignmentStatus = $asignacionExistente['status'];
                 $this->assignmentModel->update($asignacionExistente['id'], [
                     'assigned_to' => $this->request->getPost('assigned_to'),
                     'instructions' => $this->request->getPost('instructions'),
@@ -153,10 +164,17 @@ class DocumentController extends BaseController
                     'assigned_by' => session()->get('user_id'),   // El director que aprobó
                     'assigned_at' => date('Y-m-d H:i:s'),
                 ]);
+                audit_status_change(
+                    entityType: 'assignments',
+                    entityId: (int) $asignacionExistente['id'],
+                    oldStatus: $oldAssignmentStatus,
+                    newStatus: 'pendiente',
+                    description: "Director '{$directorName}' actualizó la asignación y la dejó en estado pendiente."
+                );
             } else {
 
                 // 2. Crear la asignación
-                $this->assignmentModel->insert([
+                $newAssignmentId = $this->assignmentModel->insert([
                     'document_id' => $documentId,
                     'assigned_by' => session()->get('user_id'),
                     'assigned_to' => $this->request->getPost('assigned_to'),
@@ -165,12 +183,32 @@ class DocumentController extends BaseController
                     'status' => 'pendiente',
                     'assigned_at' => date('Y-m-d H:i:s'),
                 ]);
+
+                audit_log(
+                    action: AuditActions::ASSIGNMENT_CREATED,
+                    entityType: 'assignments',
+                    entityId: (int) $newAssignmentId,
+                    newStatus: 'pendiente',
+                    newValues: [
+                        'document_id' => $documentId,
+                        'assigned_to' => $this->request->getPost('assigned_to'),
+                        'due_date' => $this->request->getPost('due_date') ?: null,
+                    ],
+                    description: "Director '{$directorName}' creó una nueva asignación en estado pendiente."
+                );
             }
 
             // 3. Actualizar documento a 'asignado'
             $this->documentModel->update($documentId, [
                 'status' => 'asignado',
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: $documentId,
+                oldStatus: 'aprobado',
+                newStatus: 'asignado',
+                description: "Director '{$directorName}' cambió el estado de 'aprobado' a 'asignado'."
+            );
 
             $this->db->transComplete();
 
@@ -215,12 +253,22 @@ class DocumentController extends BaseController
         }
 
         try {
+            $document = $this->documentModel->find($documentId);
+            $oldStatus = $document['status'] ?? null;
+            $directorName = session()->get('name') ?? 'Director';
             $this->documentModel->update($documentId, [
                 'status' => 'rechazado',
                 'reviewed_by' => session()->get('user_id'),
                 'reviewed_at' => date('Y-m-d H:i:s'),
                 'review_notes' => $this->request->getPost('review_notes'),
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: $documentId,
+                oldStatus: $oldStatus,
+                newStatus: 'rechazado',
+                description: "Director '{$directorName}' cambió el estado de '{$oldStatus}' a 'rechazado'."
+            );
 
             return redirect()->to('director/review-documents')
                 ->with('success', [
@@ -317,6 +365,7 @@ class DocumentController extends BaseController
 
         try {
             $this->db->transStart();
+            $directorName = session()->get('name') ?? 'Director';
 
             // Obtener la asignación activa del documento
             $asignacionActiva = $this->assignmentModel
@@ -331,6 +380,7 @@ class DocumentController extends BaseController
             $directorId = session()->get('user_id');
 
             if ($asignacionActiva) {
+                $oldAssignmentStatus = $asignacionActiva['status'];
                 // ── ACTUALIZAR asignación existente ──────────────────
                 // Se guardan los valores anteriores en el historial antes de pisar los datos
                 $liderAnterior = $asignacionActiva['assigned_to'];
@@ -344,6 +394,14 @@ class DocumentController extends BaseController
                     'status' => 'pendiente',    // Vuelve a pendiente para el nuevo líder
                     'started_at' => null,           // Limpiar si ya había iniciado
                 ]);
+
+                audit_status_change(
+                    entityType: 'assignments',
+                    entityId: (int) $asignacionActiva['id'],
+                    oldStatus: $oldAssignmentStatus,
+                    newStatus: 'pendiente',
+                    description: "Director '{$directorName}' actualizó la asignación del requerimiento."
+                );
 
                 // ── HISTORIAL: registrar cambio de responsable ────────
                 // Tabla sugerida: assignment_logs (id, assignment_id, document_id,
@@ -372,6 +430,19 @@ class DocumentController extends BaseController
                     'assigned_at' => date('Y-m-d H:i:s'),
                 ]);
 
+                audit_log(
+                    action: AuditActions::ASSIGNMENT_CREATED,
+                    entityType: 'assignments',
+                    entityId: (int) $newId,
+                    newStatus: 'pendiente',
+                    newValues: [
+                        'document_id' => $documentId,
+                        'assigned_to' => $nuevoLiderId,
+                        'due_date' => $nuevaFecha,
+                    ],
+                    description: "Director '{$directorName}' creó una asignación en estado pendiente."
+                );
+
                 // ── HISTORIAL: registrar creación de asignación ───────
                 $this->db->table('assignment_logs')->insert([
                     'assignment_id' => $newId,
@@ -389,6 +460,13 @@ class DocumentController extends BaseController
             $this->documentModel->update($documentId, [
                 'status' => 'asignado',
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: $documentId,
+                oldStatus: $document['status'],
+                newStatus: 'asignado',
+                description: "Director '{$directorName}' actualizó el estado del requerimiento a 'asignado'."
+            );
 
             // ── HISTORIAL: registrar cambio de estado del documento ───
             $this->db->table('assignment_logs')->insert([
@@ -432,6 +510,7 @@ class DocumentController extends BaseController
 
         try {
             $this->db->transStart();
+            $directorName = session()->get('name') ?? 'Director';
 
             // 1. Cancelar asignación activa si existe
             $asignacionActiva = $this->assignmentModel
@@ -441,19 +520,35 @@ class DocumentController extends BaseController
                 ->first();
 
             if ($asignacionActiva) {
+                $oldAssignmentStatus = $asignacionActiva['status'];
                 $this->assignmentModel->update($asignacionActiva['id'], [
                     'status' => 'rechazado', // o 'cancelado' según preferencia
                     // 'ended_at' => date('Y-m-d H:i:s'),
                 ]);
+                audit_status_change(
+                    entityType: 'assignments',
+                    entityId: (int) $asignacionActiva['id'],
+                    oldStatus: $oldAssignmentStatus,
+                    newStatus: 'rechazado',
+                    description: "Director '{$directorName}' canceló la asignación al reabrir el requerimiento."
+                );
             }
 
             // 2. Devolver documento a revisión limpia
+            $oldDocumentStatus = $document['status'];
             $this->documentModel->update($documentId, [
                 'status' => 'pendiente',
                 'reviewed_by' => null,
                 'reviewed_at' => null,
                 'review_notes' => null,
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: $documentId,
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'pendiente',
+                description: "Director '{$directorName}' reabrió el requerimiento para nueva revisión."
+            );
 
             $this->db->transComplete();
 
@@ -489,15 +584,33 @@ class DocumentController extends BaseController
 
         try {
             $this->db->transStart();
+            $userName = session()->get('name') ?? 'Líder';
+            $oldAssignmentStatus = $assignment['status'];
+            $document = $this->documentModel->find($assignment['document_id']);
+            $oldDocumentStatus = $document['status'] ?? null;
 
             $this->assignmentModel->update($assignmentId, [
                 'status' => 'en_progreso',
                 'started_at' => date('Y-m-d H:i:s'),
             ]);
+            audit_status_change(
+                entityType: 'assignments',
+                entityId: $assignmentId,
+                oldStatus: $oldAssignmentStatus,
+                newStatus: 'en_progreso',
+                description: "Líder '{$userName}' inició la actividad."
+            );
 
             $this->documentModel->update($assignment['document_id'], [
                 'status' => 'trabajando',
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: (int) $assignment['document_id'],
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'trabajando',
+                description: "Líder '{$userName}' cambió el requerimiento a estado 'trabajando'."
+            );
 
             $this->db->transComplete();
 
@@ -516,7 +629,7 @@ class DocumentController extends BaseController
 
     /**
      * El líder marca como completado → documento: 'completado',
-     * asignación: 'completado'.
+     * asignación: 'completada'.
      * Ruta: POST lider/assignments/complete
      */
     public function completeWork()
@@ -532,16 +645,34 @@ class DocumentController extends BaseController
 
         try {
             $this->db->transStart();
+            $userName = session()->get('name') ?? 'Líder';
+            $oldAssignmentStatus = $assignment['status'];
+            $document = $this->documentModel->find($assignment['document_id']);
+            $oldDocumentStatus = $document['status'] ?? null;
 
             $this->assignmentModel->update($assignmentId, [
-                'status' => 'completado',
+                'status' => 'completada',
                 'completed_at' => date('Y-m-d H:i:s'),
                 'result_notes' => $this->request->getPost('result_notes') ?? null,
             ]);
+            audit_status_change(
+                entityType: 'assignments',
+                entityId: $assignmentId,
+                oldStatus: $oldAssignmentStatus,
+                newStatus: 'completada',
+                description: "Líder '{$userName}' marcó la asignación como completada."
+            );
 
             $this->documentModel->update($assignment['document_id'], [
                 'status' => 'completado',
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: (int) $assignment['document_id'],
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'completado',
+                description: "Líder '{$userName}' cambió el requerimiento a estado 'completado'."
+            );
 
             $this->db->transComplete();
 

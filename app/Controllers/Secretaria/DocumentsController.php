@@ -172,14 +172,6 @@ class DocumentsController extends BaseController
 
         $oldStatus = $document['status'];
 
-        // Mapa de acciones según el nuevo estado
-        $actionMap = [
-            'en_revision' => AuditActions::DOCUMENT_STATUS_CHANGED,
-            'aprobado' => AuditActions::DOCUMENT_STATUS_CHANGED,
-            'rechazado' => AuditActions::DOCUMENT_STATUS_CHANGED,
-            'asignado' => AuditActions::DOCUMENT_STATUS_CHANGED,
-            'completado' => AuditActions::DOCUMENT_STATUS_CHANGED,
-        ];
 
         // Descripción legible según la transición
         $descriptions = [
@@ -197,15 +189,14 @@ class DocumentsController extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        audit_log(
-            action: $actionMap[$newStatus] ?? AuditActions::DOCUMENT_STATUS_CHANGED,
+        audit_status_change(
             entityType: 'documents',
             entityId: $documentId,
             oldStatus: $oldStatus,
             newStatus: $newStatus,
+            description: $descriptions[$newStatus] ?? "Estado cambiado de '{$oldStatus}' a '{$newStatus}'",
             oldValues: ['status' => $oldStatus],
-            newValues: ['status' => $newStatus],
-            description: $descriptions[$newStatus] ?? "Estado cambiado de '{$oldStatus}' a '{$newStatus}'"
+            newValues: ['status' => $newStatus]
         );
 
         $this->db->transComplete();

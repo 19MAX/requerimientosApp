@@ -10,7 +10,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class MyAssignmentsController extends BaseController
 {
-protected $assignmentModel;
+    protected $assignmentModel;
     protected $documentModel;
     protected $reportModel;
     protected $db;
@@ -21,6 +21,7 @@ protected $assignmentModel;
         $this->documentModel = new DocumentModel();
         $this->reportModel = new ActivityReportModel();
         $this->db = \Config\Database::connect();
+        helper(['document', 'audit']);
     }
 
     public function index()
@@ -60,12 +61,41 @@ protected $assignmentModel;
             if ($assignment['status'] !== 'pendiente') {
                 return redirect()->to('lider/my-assignments')->with('error', 'La tarea ya fue iniciada o completada previamente.');
             }
+            $leaderName = session()->get('name') ?? 'Líder';
+            $oldAssignmentStatus = $assignment['status'];
+            $document = $this->documentModel->find($assignment['document_id']);
+            $oldDocumentStatus = $document['status'] ?? null;
 
             // Actualizar estado y registrar la fecha de inicio
+            $this->db->transStart();
             $this->assignmentModel->update($assignmentId, [
                 'status'     => 'en_progreso',
                 'started_at' => date('Y-m-d H:i:s')
             ]);
+            audit_status_change(
+                entityType: 'assignments',
+                entityId: (int) $assignmentId,
+                oldStatus: $oldAssignmentStatus,
+                newStatus: 'en_progreso',
+                description: "Líder '{$leaderName}' inició la actividad asignada."
+            );
+
+            $this->documentModel->update($assignment['document_id'], [
+                'status' => 'trabajando',
+            ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: (int) $assignment['document_id'],
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'trabajando',
+                description: "Líder '{$leaderName}' cambió el requerimiento a estado 'trabajando'."
+            );
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return redirect()->to('lider/my-assignments')->with('error', 'No se pudo iniciar la tarea por un error en base de datos.');
+            }
 
             return redirect()->to('lider/my-assignments')->with('success', 'Has iniciado la tarea. ¡Mucho éxito!');
 
@@ -97,12 +127,17 @@ protected $assignmentModel;
             $assignmentId = $this->request->getPost('assignment_id');
             $documentId   = $this->request->getPost('document_id');
             $userId       = session()->get('user_id');
+            $leaderName   = session()->get('name') ?? 'Líder';
 
             // Validar existencia y propiedad
             $assignment = $this->assignmentModel->find($assignmentId);
             if (!$assignment || $assignment['assigned_to'] != $userId || $assignment['status'] !== 'en_progreso') {
                 return redirect()->to('lider/my-assignments')->with('error', 'No puedes reportar esta tarea en su estado actual.');
             }
+
+            $oldAssignmentStatus = $assignment['status'];
+            $document = $this->documentModel->find($documentId);
+            $oldDocumentStatus = $document['status'] ?? null;
 
             // ── PASO 1: Procesar el archivo adjunto usando tu Helper Dinámico ──
             $file = $this->request->getFile('report_file');
@@ -139,11 +174,25 @@ protected $assignmentModel;
                 'status'       => 'completada',
                 'completed_at' => date('Y-m-d H:i:s')
             ]);
+            audit_status_change(
+                entityType: 'assignments',
+                entityId: (int) $assignmentId,
+                oldStatus: $oldAssignmentStatus,
+                newStatus: 'completada',
+                description: "Líder '{$leaderName}' marcó la asignación como completada."
+            );
 
             // Marcar el documento original como completado
             $this->documentModel->update($documentId, [
                 'status' => 'completado'
             ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: (int) $documentId,
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'completado',
+                description: "Líder '{$leaderName}' cambió el requerimiento a estado 'completado'."
+            );
 
             // FIN DE LA TRANSACCIÓN
             $this->db->transComplete();

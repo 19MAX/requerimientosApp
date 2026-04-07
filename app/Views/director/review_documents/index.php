@@ -180,7 +180,7 @@
                                 <textarea class="form-control" name="instructions" id="approve_instructions" rows="3"
                                     placeholder="Describe qué debe hacer el líder de área con este documento..."></textarea>
                                 <div class="form-text mt-1">
-                                    Se notificará al líder seleccionado para gestionar el requerimiento.
+                                    El líder seleccionado podrá ver y gestionar el requerimiento.
                                 </div>
                             </div>
                         </div>

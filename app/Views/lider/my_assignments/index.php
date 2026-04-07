@@ -189,7 +189,7 @@
                             <path
                                 d="M9 18h-3a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-3l-3 3l-3 -3z" />
                         </svg> Instrucciones del Director</label>
-                    <div class="p-3 bg-gray-100 rounded text-dark" id="detail_instructions"
+                    <div class="p-3 bg-gray-100 rounded" id="detail_instructions"
                         style="white-space: pre-wrap;"></div>
                 </div>
             </div>
@@ -213,8 +213,7 @@
                 <div class="modal-body">
 
                     <div class="alert alert-warning bg-warning-subtle text-warning-emphasis border-0">
-                        Al enviar este reporte, la tarea se marcará como <strong>Completada</strong> y se notificará al
-                        Director.
+                        Al enviar este reporte, la tarea se marcará como <strong>Completada</strong>
                     </div>
 
                     <div class="mb-3">

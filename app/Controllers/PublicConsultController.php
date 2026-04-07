@@ -99,6 +99,38 @@ class PublicConsultController extends BaseController
             ];
         }
 
+        $documentStatusChanges = $this->db->table('audit_trail at')
+            ->select('at.old_status, at.new_status, at.description, at.created_at, u.name as changed_by_name')
+            ->join('users u', 'u.id = at.user_id', 'left')
+            ->where('at.entity_type', 'documents')
+            ->where('at.entity_id', $documentId)
+            ->where('at.old_status IS NOT NULL', null, false)
+            ->where('at.new_status IS NOT NULL', null, false)
+            ->orderBy('at.created_at', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($documentStatusChanges as $change) {
+            $fromStatus = $this->statusLabel($change['old_status'] ?? null);
+            $toStatus = $this->statusLabel($change['new_status'] ?? null);
+
+            $description = "El requerimiento pasó de '{$fromStatus}' a '{$toStatus}'.";
+
+            if (!empty($change['description'])) {
+                $description .= ' ' . $change['description'];
+            }
+
+            if (!empty($change['changed_by_name'])) {
+                $description .= ' Responsable: ' . $change['changed_by_name'] . '.';
+            }
+
+            $history[] = [
+                'date' => $change['created_at'],
+                'title' => 'Cambio de estado del requerimiento',
+                'description' => $description,
+            ];
+        }
+
         $assignments = $this->db->table('assignments a')
             ->select('a.*, u1.name as director_name, u2.name as lider_name')
             ->join('users u1', 'u1.id = a.assigned_by', 'left')
@@ -130,6 +162,41 @@ class PublicConsultController extends BaseController
                     'date' => $assignment['completed_at'],
                     'title' => 'Actividad completada',
                     'description' => ($assignment['lider_name'] ?? 'El líder') . ' reportó la actividad como completada.',
+                ];
+            }
+        }
+
+        $assignmentIds = array_column($assignments, 'id');
+
+        if (!empty($assignmentIds)) {
+            $assignmentStatusChanges = $this->db->table('audit_trail at')
+                ->select('at.entity_id, at.old_status, at.new_status, at.description, at.created_at, u.name as changed_by_name')
+                ->join('users u', 'u.id = at.user_id', 'left')
+                ->where('at.entity_type', 'assignments')
+                ->whereIn('at.entity_id', $assignmentIds)
+                ->where('at.old_status IS NOT NULL', null, false)
+                ->where('at.new_status IS NOT NULL', null, false)
+                ->orderBy('at.created_at', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            foreach ($assignmentStatusChanges as $change) {
+                $fromStatus = $this->statusLabel($change['old_status'] ?? null);
+                $toStatus = $this->statusLabel($change['new_status'] ?? null);
+                $description = "La asignación pasó de '{$fromStatus}' a '{$toStatus}'.";
+
+                if (!empty($change['description'])) {
+                    $description .= ' ' . $change['description'];
+                }
+
+                if (!empty($change['changed_by_name'])) {
+                    $description .= ' Responsable: ' . $change['changed_by_name'] . '.';
+                }
+
+                $history[] = [
+                    'date' => $change['created_at'],
+                    'title' => 'Cambio de estado de asignación',
+                    'description' => $description,
                 ];
             }
         }
@@ -180,5 +247,14 @@ class PublicConsultController extends BaseController
             'estado_documento' => 'Cambio de estado del documento',
             default => ucfirst(str_replace('_', ' ', $action)),
         };
+    }
+
+    private function statusLabel(?string $status): string
+    {
+        if ($status === null || $status === '') {
+            return 'Sin estado';
+        }
+
+        return ucfirst(str_replace('_', ' ', $status));
     }
 }

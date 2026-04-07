@@ -6,6 +6,16 @@
  * Helper para registrar eventos en la tabla audit_trail.
  * Uso: audit_log('document.created', 'documents', $docId, null, null, ['title' => 'Mi doc']);
  */
+if (! function_exists('audit_humanize_status')) {
+    function audit_humanize_status(?string $status): string
+    {
+        if ($status === null || $status === '') {
+            return 'sin estado';
+        }
+
+        return ucfirst(str_replace('_', ' ', $status));
+    }
+}
 
 if (! function_exists('audit_log')) {
     /**
@@ -40,7 +50,9 @@ if (! function_exists('audit_log')) {
             $userId = session()->get('user_id');
         }
 
-        $db->table('audit_trail')->insert([
+        $userAgent = $request->getUserAgent();
+
+        $inserted = $db->table('audit_trail')->insert([
             'user_id'     => $userId,
             'action'      => $action,
             'entity_type' => $entityType,
@@ -51,9 +63,46 @@ if (! function_exists('audit_log')) {
             'new_values'  => $newValues  ? json_encode($newValues,  JSON_UNESCAPED_UNICODE) : null,
             'description' => $description,
             'ip_address'  => $request->getIPAddress(),
-            'user_agent'  => $request->getUserAgent()->getAgentString(),
+            'user_agent'  => $userAgent ? $userAgent->getAgentString() : null,
             'created_at'  => date('Y-m-d H:i:s'),
         ]);
+
+        if (! $inserted) {
+            throw new \RuntimeException('No se pudo registrar el evento de auditoría.');
+        }
+    }
+}
+
+if (! function_exists('audit_status_change')) {
+    function audit_status_change(
+        string $entityType,
+        int $entityId,
+        ?string $oldStatus,
+        ?string $newStatus,
+        ?string $description = null,
+        ?array $oldValues = null,
+        ?array $newValues = null
+    ): void {
+        if ($oldStatus === $newStatus) {
+            return;
+        }
+
+        $action = match ($entityType) {
+            'documents' => AuditActions::DOCUMENT_STATUS_CHANGED,
+            'assignments' => AuditActions::ASSIGNMENT_STATUS_CHANGED,
+            default => "{$entityType}.status_changed",
+        };
+
+        audit_log(
+            action: $action,
+            entityType: $entityType,
+            entityId: $entityId,
+            oldStatus: $oldStatus,
+            newStatus: $newStatus,
+            oldValues: $oldValues ?? ['status' => $oldStatus],
+            newValues: $newValues ?? ['status' => $newStatus],
+            description: $description ?? "Estado cambiado de '" . audit_humanize_status($oldStatus) . "' a '" . audit_humanize_status($newStatus) . "'."
+        );
     }
 }
 
