@@ -106,14 +106,10 @@
     <div class="row g-6 mb-6">
         <div class="col-12">
             <div class="card card-lg">
-                <div class="card-header border-bottom-0">
-                    <h5 class="mb-0">Bandeja de Tareas</h5>
-                </div>
-                <div class="table-responsive">
+                <div class="table-responsive py-3">
                     <table class="table text-nowrap mb-0 table-centered table-hover" id="liderTable">
                         <thead class="table-light">
                             <tr>
-                                <th>N° Asignación</th>
                                 <th>Documento Origen</th>
                                 <th>Asignado Por</th>
                                 <th>Fecha Límite</th>
@@ -125,8 +121,6 @@
                             <?php if (!empty($assignments)): ?>
                                 <?php foreach ($assignments as $task): ?>
                                     <tr>
-                                        <td><span class="fw-semibold">#<?= str_pad($task['id'], 5, '0', STR_PAD_LEFT) ?></span>
-                                        </td>
                                         <td>
                                             <div class="text-truncate" style="max-width: 250px;"
                                                 title="<?= esc($task['document_title']) ?>">
