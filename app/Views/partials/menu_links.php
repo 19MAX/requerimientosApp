@@ -26,7 +26,7 @@
 
     <?php if ($role === 'admin'): ?>
         <li class="nav-item">
-            <a class="nav-link" href="<?= base_url('admin/users') ?>">
+            <a class="nav-link" href="<?= base_url('profile') ?>">
                 <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -42,7 +42,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="<?= base_url('admin/clients') ?>">
+            <a class="nav-link" href="<?= base_url('profile') ?>">
                 <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -154,7 +154,7 @@
         <hr class="mx-5 nav-line mb-1">
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="<?= base_url('admin/profile') ?>">
+        <a class="nav-link" href="<?= base_url('profile') ?>">
             <span class="nav-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"

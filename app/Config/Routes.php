@@ -13,6 +13,12 @@ $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::loginProcess');
 $routes->get('logout', 'Auth::logout');
 
+// Rutas globales para cualquier usuario autenticado
+$routes->group('', ['filter' => 'auth'], function ($routes) {
+    $routes->get('profile', 'ProfileController::index');
+    $routes->post('profile/update-info', 'ProfileController::updateInfo');
+    $routes->post('profile/update-password', 'ProfileController::updatePassword');
+});
 
 
 //Rutas de ADMINISTRADOR
@@ -32,9 +38,6 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
     $routes->get('audit', 'Admin\AuditController::index');
     $routes->get('audit/assignments', 'Admin\AuditController::assignmentStatus');
     $routes->get('audit/documents', 'Admin\AuditController::documentChanges');
-    $routes->get('profile', 'Admin\ProfileController::index');
-    $routes->post('profile/update-info', 'Admin\ProfileController::updateInfo');
-    $routes->post('profile/update-password', 'Admin\ProfileController::updatePassword');
 
     $routes->get('settings', 'Admin\SettingsController::index');
     $routes->post('settings/update', 'Admin\SettingsController::update');

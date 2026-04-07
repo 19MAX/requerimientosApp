@@ -20,7 +20,7 @@
                     <h5 class="mb-0">Información Básica</h5>
                 </div>
                 <div class="card-body">
-                    <form action="<?= base_url('admin/profile/update-info') ?>" method="POST">
+                    <form action="<?= base_url('profile/update-info') ?>" method="POST">
                         <?= csrf_field() ?>
                         <input type="hidden" name="id" value="<?= esc($user['id'] ?? '') ?>">
 
@@ -62,7 +62,7 @@
                         Si no deseas cambiar tu contraseña, deja estos campos en blanco.
                     </div>
 
-                    <form action="<?= base_url('admin/profile/update-password') ?>" method="POST">
+                    <form action="<?= base_url('profile/update-password') ?>" method="POST">
                         <?= csrf_field() ?>
                         <input type="hidden" name="id" value="<?= esc($user['id'] ?? '') ?>">
 

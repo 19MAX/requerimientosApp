@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Controllers\Admin;
+namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Models\UsersModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -31,7 +30,7 @@ class ProfileController extends BaseController
             return redirect()->to('login')->with('error', 'Usuario no encontrado.');
         }
 
-        return view('admin/profile/index', [
+        return view('profile/index', [
             'user' => $user
         ]);
     }
@@ -63,7 +62,7 @@ class ProfileController extends BaseController
             session()->set('name', $data['name']);
             session()->set('email', $data['email']);
 
-            return redirect()->to('admin/profile')->with('success', [
+            return redirect()->to('profile')->with('success', [
                 'text' => 'Tu información básica ha sido actualizada.',
                 'position' => 'top-end'
             ]);
@@ -127,7 +126,7 @@ class ProfileController extends BaseController
                 return redirect()->back()->with('error', $errores);
             }
 
-            return redirect()->to('admin/profile')->with('success', [
+            return redirect()->to('profile')->with('success', [
                 'text' => 'Tu contraseña ha sido actualizada con éxito.',
                 'position' => 'center'
             ]);
