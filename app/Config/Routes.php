@@ -46,6 +46,14 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
 // Rutas de SECRETARÍA
 $routes->group('secretaria', ['filter' => ['auth', 'role:secretaria']], function ($routes) {
     $routes->get('/', 'Secretaria\DashboardController::index');
+
+    $routes->group('clients', function ($routes) {
+        $routes->get('/', 'Secretaria\ClientsController::index');
+        $routes->post('create', 'Secretaria\ClientsController::create');
+        $routes->post('update', 'Secretaria\ClientsController::update');
+        $routes->post('delete', 'Secretaria\ClientsController::delete');
+    });
+
     $routes->get('documents', 'Secretaria\DocumentsController::index');
     $routes->post('documents/create', 'Secretaria\DocumentsController::create');
     $routes->post('documents/update', 'Secretaria\DocumentsController::update');
