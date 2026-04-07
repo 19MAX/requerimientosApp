@@ -38,3 +38,11 @@
 
 <!-- Theme CSS -->
 <link rel="stylesheet" href="<?=base_url('dist')?>/assets/css/theme.min.css">
+
+<!-- FONTSAWESOME -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- TOM SELECT -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.css" rel="stylesheet">
+
+<?= $this->include('partials/header') ?>

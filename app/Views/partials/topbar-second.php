@@ -47,28 +47,13 @@
       <!-- Logo -->
       <!-- <div class="d-block d-md-none">
         <a href="./index.html">
-          <img src="<?=base_url('dist')?>/assets/images/brand/logo/logo-icon.svg" alt="" />
+          <img src="<?= base_url('dist') ?>/assets/images/brand/logo/logo-icon.svg" alt="" />
         </a>
       </div> -->
     </div>
 
     <!-- Navbar nav -->
     <ul class="list-unstyled d-flex align-items-center mb-0 gap-2">
-      <!-- Pages link -->
-      <li>
-        <button type="button" class="btn btn-white" data-bs-toggle="modal" data-bs-target="#searchModal">
-          <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-search">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <circle cx="10" cy="10" r="7" />
-              <line x1="21" y1="21" x2="15" y2="15" />
-            </svg>
-          </span>
-          <small class="ms-1">⌘K</small>
-        </button>
-        <!-- Modal -->
-      </li>
       <!-- Light dark mode-->
       <li>
         <div class="dropdown">
@@ -103,7 +88,7 @@
         </div>
       </li>
       <!-- Bell icon -->
-      <li>
+      <!-- <li>
         <a class="position-relative btn-icon btn-ghost btn rounded-circle" data-bs-toggle="offcanvas"
           href="#offcanvasNotification" role="button" aria-controls="offcanvasNotification">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -118,23 +103,26 @@
             <span class="visually-hidden">unread messages</span>
           </span>
         </a>
-      </li>
+      </li> -->
       <!-- Dropdown -->
       <li class="ms-3 dropdown">
         <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-sm rounded-circle" />
+          <!-- <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-1.jpg" alt=""
+            class="avatar avatar-sm rounded-circle" /> -->
+          <div class="icon-shape icon-md rounded-circle bg-primary-subtle text-primary">
+            <?= strtoupper(substr(session('name'), 0, 2)) ?>
+          </div>
         </a>
         <div class="dropdown-menu dropdown-menu-end dropdown-menu-md p-0">
           <div>
             <div class="d-flex gap-3 align-items-center border-dashed border-bottom px-4 py-4">
-              <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-md rounded-circle" />
               <div>
-                <h4 class="mb-0 fs-5">Jitu Chauhan</h4>
-                <p class="mb-0 text-secondar small">@imjituchauhan</p>
+                <h4 class="mb-0 fs-5"><?= session('name') ?></h4>
+                <p class="mb-0 text-secondar small"><?= session('email') ?></p>
               </div>
             </div>
             <div class="p-3 d-flex flex-column gap-1">
-              <a href="#!" class="dropdown-item d-flex align-items-center gap-2">
+              <a href="<?= base_url('admin') ?>" class="dropdown-item d-flex align-items-center gap-2">
                 <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-home-2">
@@ -144,43 +132,9 @@
                     <path d="M10 12h4v4h-4z" />
                   </svg>
                 </span>
-                <span>Home</span>
+                <span>Inicio</span>
               </a>
-              <a href="#!" class="dropdown-item d-flex align-items-center gap-2">
-                <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-inbox">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-                    <path d="M4 13h3l3 3h4l3 -3h3" />
-                  </svg>
-                </span>
-                <span> Inbox</span>
-              </a>
-              <a href="#!" class="dropdown-item d-flex align-items-center gap-2">
-                <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-message">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M8 9h8" />
-                    <path d="M8 13h6" />
-                    <path
-                      d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
-                  </svg>
-                </span>
-                <span> Chat</span>
-              </a>
-              <a href="#!" class="dropdown-item d-flex align-items-center gap-2">
-                <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-activity">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M3 12h4l3 8l4 -16l3 8h4" />
-                  </svg>
-                </span>
-                <span> Activity</span>
-              </a>
-              <a href="#!" class="dropdown-item d-flex align-items-center gap-2">
+              <a href="<?=base_url('admin/settings')?>" class="dropdown-item d-flex align-items-center gap-2">
                 <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-settings">
@@ -190,11 +144,11 @@
                     <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
                   </svg>
                 </span>
-                <span> Account Settings</span>
+                <span> Configuración</span>
               </a>
             </div>
             <div class="border-dashed border-top mb-4 pt-4 px-6">
-              <a href="#!" class="text-secondary d-flex align-items-center gap-2">
+              <a href="<?= base_url('logout') ?>" class="text-secondary d-flex align-items-center gap-2">
                 <span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -205,7 +159,7 @@
                     <path d="M13 15l3 -3" />
                   </svg>
                 </span>
-                <span>Logout</span></a>
+                <span>Cerrar Sesión</span></a>
             </div>
           </div>
         </div>
@@ -308,7 +262,8 @@
           <a href="#" class="list-group-item list-group-item-action p-5 border-dashed border-bottom">
             <div class="d-flex justify-content-between">
               <div class="d-flex gap-4 align-items-center">
-                <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-md rounded-circle" />
+                <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-1.jpg" alt=""
+                  class="avatar avatar-md rounded-circle" />
                 <div class="d-flex flex-column gap-1">
                   <div>Alice uploaded a new profile picture.</div>
                   <small class="text-secondary"> 1 hour ago</small>
@@ -327,7 +282,8 @@
           <a href="#" class="list-group-item list-group-item-action p-5 border-dashed border-bottom">
             <div class="d-flex justify-content-between">
               <div class="d-flex gap-4 align-items-center">
-                <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-2.jpg" alt="" class="avatar avatar-md rounded-circle" />
+                <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-2.jpg" alt=""
+                  class="avatar avatar-md rounded-circle" />
                 <div class="d-flex flex-column gap-1">
                   <div>Mike sent you a friend request.</div>
                   <small class="text-secondary"> 5 minutes ago</small>
@@ -350,7 +306,8 @@
           <a href="#" class="list-group-item list-group-item-action p-5 border-dashed border-bottom">
             <div class="d-flex justify-content-between">
               <div class="d-flex gap-4 align-items-center">
-                <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-3.jpg" alt="" class="avatar avatar-md rounded-circle" />
+                <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-3.jpg" alt=""
+                  class="avatar avatar-md rounded-circle" />
                 <div class="d-flex flex-column gap-1">
                   <div>Sophia commented on your post.</div>
                   <small class="text-secondary"> 20 minutes ago</small>
@@ -462,7 +419,8 @@
           <a href="#" class="list-group-item list-group-item-action p-5 border-dashed border-bottom">
             <div class="d-flex justify-content-between">
               <div class="d-flex gap-4 align-items-center">
-                <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-3.jpg" alt="" class="avatar avatar-md rounded-circle" />
+                <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-3.jpg" alt=""
+                  class="avatar avatar-md rounded-circle" />
                 <div class="d-flex flex-column gap-1">
                   <div>Sophia commented on your post.</div>
                   <small class="text-secondary"> 20 minutes ago</small>
@@ -645,7 +603,8 @@
           <a href="#" class="list-group-item list-group-item-action p-5 border-dashed border-bottom">
             <div class="d-flex justify-content-between">
               <div class="d-flex gap-4 align-items-center">
-                <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-3.jpg" alt="" class="avatar avatar-md rounded-circle" />
+                <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-3.jpg" alt=""
+                  class="avatar avatar-md rounded-circle" />
                 <div class="d-flex flex-column gap-1">
                   <div>Sophia commented on your post.</div>
                   <small class="text-secondary"> 20 minutes ago</small>
@@ -793,7 +752,8 @@
           <a href="#" class="list-group-item list-group-item-action p-5 border-dashed border-bottom">
             <div class="d-flex justify-content-between">
               <div class="d-flex gap-4 align-items-center">
-                <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-1.jpg" alt="" class="avatar avatar-md rounded-circle" />
+                <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-1.jpg" alt=""
+                  class="avatar avatar-md rounded-circle" />
                 <div class="d-flex flex-column gap-1">
                   <div>Alice uploaded a new profile picture.</div>
                   <small class="text-secondary"> 1 hour ago</small>
@@ -812,7 +772,8 @@
           <a href="#" class="list-group-item list-group-item-action p-5 border-dashed border-bottom">
             <div class="d-flex justify-content-between">
               <div class="d-flex gap-4 align-items-center">
-                <img src="<?=base_url('dist')?>/assets/images/avatar/avatar-2.jpg" alt="" class="avatar avatar-md rounded-circle" />
+                <img src="<?= base_url('dist') ?>/assets/images/avatar/avatar-2.jpg" alt=""
+                  class="avatar avatar-md rounded-circle" />
                 <div class="d-flex flex-column gap-1">
                   <div>Mike sent you a friend request.</div>
                   <small class="text-secondary"> 5 minutes ago</small>
@@ -838,18 +799,5 @@
   </div>
   <div class="px-5 py-3 text-center bg-white position-absolute bottom-0 border-top border-dashed w-100 text-center">
     <a href="#!" class="text-inherit">View all</a>
-  </div>
-</div>
-<!-- Modal of pages -->
-<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <input type="search" class="form-control border-0 rounded-0 ps-0 form-focus-none" id="globalSearchInput"
-          placeholder="Search any word..." aria-label="Search" aria-describedby="search-addon" />
-        <button type="button" class="btn btn-white btn-sm" data-bs-dismiss="modal" aria-label="Close">Esc</button>
-      </div>
-
-    </div>
   </div>
 </div>
