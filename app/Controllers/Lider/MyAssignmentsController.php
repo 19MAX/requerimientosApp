@@ -30,7 +30,7 @@ class MyAssignmentsController extends BaseController
 
         // Obtener las asignaciones del usuario logeado con JOIN para traer info del doc y del director
         $assignments = $this->assignmentModel
-            ->select('assignments.*, documents.title as document_title, documents.file_path as doc_file_path, users.name as director_name')
+            ->select('assignments.*, documents.document_code, documents.title as document_title, documents.file_path as doc_file_path, users.name as director_name')
             ->join('documents', 'documents.id = assignments.document_id')
             ->join('users', 'users.id = assignments.assigned_by')
             ->where('assignments.assigned_to', $userId)

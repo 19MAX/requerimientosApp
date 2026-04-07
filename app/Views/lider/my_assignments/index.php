@@ -128,11 +128,10 @@
                                         <td><span class="fw-semibold">#<?= str_pad($task['id'], 5, '0', STR_PAD_LEFT) ?></span>
                                         </td>
                                         <td>
-                                            <div class="text-truncate" style="max-width: 200px;"
+                                            <div class="text-truncate" style="max-width: 250px;"
                                                 title="<?= esc($task['document_title']) ?>">
-                                                <?= esc($task['document_title']) ?>
+                                                <span class="fw-semibold"><?= esc($task['document_code'] ?? 'N/D') ?></span> - <?= esc($task['document_title']) ?>
                                             </div>
-                                            <small class="text-muted">Doc #<?= $task['document_id'] ?></small>
                                         </td>
                                         <td><?= esc($task['director_name'] ?? 'N/A') ?></td>
                                         <td>
@@ -168,61 +167,61 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-white btn-sm"
-                                                onclick="openDetailsModal(<?= htmlspecialchars(json_encode($task), ENT_QUOTES) ?>)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-eye text-dark">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                                    <path
-                                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                                </svg>
-                                                Detalles
-                                            </button>
-
-                                            <?php if ($task['status'] === 'pendiente'): ?>
-                                                <form action="<?= base_url('lider/my-assignments/start') ?>" method="POST"
-                                                    class="d-inline">
-                                                    <input type="hidden" name="assignment_id" value="<?= $task['id'] ?>">
-                                                    <button type="submit" class="btn btn-primary btn-sm">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                            stroke-linecap="round" stroke-linejoin="round"
-                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-player-play">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M7 4v16l13 -8z" />
-                                                        </svg>
-                                                        Iniciar Tarea
-                                                    </button>
-                                                </form>
-
-                                            <?php elseif ($task['status'] === 'en_progreso'): ?>
-                                                <button type="button" class="btn btn-success btn-sm"
-                                                    onclick="openReportModal(<?= $task['id'] ?>, <?= $task['document_id'] ?>)">
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-light btn-sm"
+                                                    onclick="openDetailsModal(<?= htmlspecialchars(json_encode($task), ENT_QUOTES) ?>)"
+                                                    title="Ver Detalles">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                         stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-upload">
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
                                                         <path
-                                                            d="M4 14a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-4z" />
-                                                        <path d="M12 12l0 -9" />
-                                                        <path d="M9 6l3 -3l3 3" />
+                                                            d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                                     </svg>
-                                                    Subir Evidencia
                                                 </button>
 
-                                            <?php else: ?>
-                                                <span class="text-muted small ms-2"><svg xmlns="http://www.w3.org/2000/svg"
-                                                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-check">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M5 12l5 5l10 -10" />
-                                                    </svg> Finalizado</span>
-                                            <?php endif; ?>
+                                                <?php if ($task['status'] === 'pendiente'): ?>
+                                                    <form action="<?= base_url('lider/my-assignments/start') ?>" method="POST"
+                                                        class="d-inline">
+                                                        <input type="hidden" name="assignment_id" value="<?= $task['id'] ?>">
+                                                        <button type="submit" class="btn btn-primary btn-sm" title="Iniciar Tarea">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                                stroke-linecap="round" stroke-linejoin="round"
+                                                                class="icon icon-tabler icons-tabler-outline icon-tabler-player-play">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M7 4v16l13 -8z" />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+
+                                                <?php elseif ($task['status'] === 'en_progreso'): ?>
+                                                    <button type="button" class="btn btn-success btn-sm"
+                                                        onclick="openReportModal(<?= $task['id'] ?>, <?= $task['document_id'] ?>)"
+                                                        title="Subir Evidencia">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-upload">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path
+                                                                d="M4 14a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-4z" />
+                                                            <path d="M12 12l0 -9" />
+                                                            <path d="M9 6l3 -3l3 3" />
+                                                        </svg>
+                                                    </button>
+
+                                                <?php else: ?>
+                                                    <span class="text-success p-1" title="Finalizado">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M5 12l5 5l10 -10" />
+                                                        </svg>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -247,7 +246,7 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label text-muted mb-0">Documento de Origen</label>
                         <p class="fw-bold mb-1" id="detail_doc_title"></p>
-                        <a href="#" id="detail_doc_link" class="btn btn-sm btn-outline-primary mt-1" target="_blank">
+                        <a href="#" id="detail_doc_link" class="btn btn-sm btn-outline-primary mt-1" target="_blank" rel="noopener">
                             Descargar Archivo Original
                         </a>
                     </div>
@@ -333,14 +332,14 @@
 
     // Poblar y abrir el Modal de Detalles
     function openDetailsModal(task) {
-        document.getElementById('detail_doc_title').innerText = task.document_title;
+        document.getElementById('detail_doc_title').innerText = (task.document_code ? task.document_code : 'N/D') + ' - ' + task.document_title;
         document.getElementById('detail_director_name').innerText = task.director_name;
         document.getElementById('detail_instructions').innerText = task.instructions;
 
-        // Configurar el enlace de descarga del documento original
+        // Configurar el enlace de descarga del documento original directamente a la ruta pública
         let downloadBtn = document.getElementById('detail_doc_link');
         if (task.doc_file_path) {
-            downloadBtn.href = "<?= base_url('secretaria/documents/download/') ?>" + task.document_id;
+            downloadBtn.href = "<?= base_url() ?>" + task.doc_file_path;
             downloadBtn.style.display = 'inline-block';
         } else {
             downloadBtn.style.display = 'none';
