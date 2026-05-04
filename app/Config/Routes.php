@@ -64,6 +64,9 @@ $routes->group('secretaria', ['filter' => ['auth', 'role:secretaria']], function
 
     $routes->get('clients/search', 'Secretaria\DocumentsController::search');
     $routes->post('clients/store', 'Secretaria\DocumentsController::store');
+
+    $routes->get('document-search', 'Secretaria\DocumentSearchController::index');
+    $routes->get('document-search/search', 'Secretaria\DocumentSearchController::search');
 });
 
 // Rutas de DIRECTOR
@@ -87,4 +90,7 @@ $routes->group('lider', ['filter' => ['auth', 'role:lider_area']], function ($ro
     // Procesamiento de acciones
     $routes->post('my-assignments/start', 'Lider\MyAssignmentsController::startTask');
     $routes->post('my-assignments/report', 'Lider\MyAssignmentsController::reportTask');
+
+    $routes->get('document-search', 'Lider\DocumentSearchController::index');
+    $routes->get('document-search/search', 'Lider\DocumentSearchController::search');
 });
