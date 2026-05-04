@@ -119,7 +119,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Cédula <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="cedula" required>
+                            <input type="text" class="form-control cedula-input" name="cedula" required maxlength="10">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
@@ -169,7 +169,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Cédula</label>
-                            <input type="text" class="form-control" name="cedula" id="edit_cedula" required>
+                            <input type="text" class="form-control cedula-input" name="cedula" id="edit_cedula" required maxlength="10">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Correo Electrónico</label>

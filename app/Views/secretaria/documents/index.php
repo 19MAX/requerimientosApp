@@ -334,8 +334,8 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Cédula / RUC</label>
-                            <input type="text" class="form-control" name="cedula"
-                                placeholder="Número de identificación">
+                            <input type="text" class="form-control cedula-input" name="cedula"
+                                placeholder="Número de identificación" maxlength="10">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Teléfono</label>
