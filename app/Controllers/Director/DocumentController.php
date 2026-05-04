@@ -28,10 +28,11 @@ class DocumentController extends BaseController
 
     public function index()
     {
-        // 1. Obtener documentos con el nombre de la secretaria que lo creó
+        // 1. Obtener documentos que requieren atención del director (excluye asignados, trabajando y completados)
         $documents = $this->documentModel->select('documents.*, users.name as creator_name, CONCAT(c.first_name, " ", c.last_name) AS client_full_name')
             ->join('users', 'users.id = documents.created_by', 'left')
             ->join('clients c', 'c.id = documents.client_id', 'left')
+            ->whereIn('documents.status', ['pendiente', 'en_revision', 'rechazado'])
             ->orderBy('documents.created_at', 'DESC')
             ->findAll();
 
