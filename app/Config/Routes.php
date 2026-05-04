@@ -35,9 +35,9 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
         $routes->post('update', 'Admin\ClientsController::update');
         $routes->post('delete', 'Admin\ClientsController::delete');
     });
-    $routes->get('audit', 'Admin\AuditController::index');
-    $routes->get('audit/assignments', 'Admin\AuditController::assignmentStatus');
-    $routes->get('audit/documents', 'Admin\AuditController::documentChanges');
+    // $routes->get('audit', 'Admin\AuditController::index');
+    // $routes->get('audit/assignments', 'Admin\AuditController::assignmentStatus');
+    // $routes->get('audit/documents', 'Admin\AuditController::documentChanges');
 
     $routes->get('settings', 'Admin\SettingsController::index');
     $routes->post('settings/update', 'Admin\SettingsController::update');

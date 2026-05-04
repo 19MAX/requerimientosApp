@@ -57,7 +57,7 @@
                 <span class="text">Gestión de Clientes</span>
             </a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link" href="<?= base_url('admin/audit/documents') ?>">
                 <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -70,8 +70,8 @@
                 </span>
                 <span class="text">Auditoría de Documentos</span>
             </a>
-        </li>
-        <li class="nav-item">
+        </li> -->
+        <!-- <li class="nav-item">
             <a class="nav-link" href="<?= base_url('admin/audit/assignments') ?>">
                 <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -88,7 +88,7 @@
                 </span>
                 <span class="text">Estados de Asignación</span>
             </a>
-        </li>
+        </li> -->
     <?php endif; ?>
 
     <?php if ($role === 'secretaria'): ?>
