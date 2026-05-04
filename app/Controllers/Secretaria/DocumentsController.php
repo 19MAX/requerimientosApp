@@ -92,10 +92,8 @@ class DocumentsController extends BaseController
             // ── PASO 2: Guardar en DB dentro de una transacción ─────────
             $this->db->transStart();
 
-            $documentCode = generate_document_code();
-
             $insertData = [
-                'document_code' => $documentCode,
+                'document_code' => 'TEMP',
                 'created_by' => $userId,
                 'client_id' => $this->request->getPost('client_id'),
                 'title' => $this->request->getPost('title'),
@@ -108,6 +106,10 @@ class DocumentsController extends BaseController
             ];
 
             $documentId = $this->documentModel->insert($insertData);
+
+            $documentCode = generate_document_code($documentId);
+
+            $this->documentModel->update($documentId, ['document_code' => $documentCode]);
 
             // ── PASO 3: Registrar auditoría dentro de la misma transacción
             audit_log(

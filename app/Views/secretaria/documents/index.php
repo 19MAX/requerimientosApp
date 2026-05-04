@@ -50,8 +50,8 @@
         display: none;
         align-items: center;
         gap: 0.75rem;
-        background: #fff;
-        border: 1px solid #dee2e6;
+        /* background: #fff; */
+        border: 1px solid var(--ds-gray-300);
         border-radius: 0.5rem;
         padding: 0.6rem 0.85rem;
         margin-top: 0.6rem;
@@ -494,7 +494,7 @@
     // ── Tom Select: Búsqueda de Clientes ─────────────────────────
     let clientSelect = new TomSelect('#select-client', {
         valueField: 'id',
-        // Como ahora tienes first_name y last_name, no usamos un solo labelField, 
+        // Como ahora tienes first_name y last_name, no usamos un solo labelField,
         // usamos render functions para mostrar la concatenación.
         searchField: ['first_name', 'last_name', 'cedula', 'email'],
         placeholder: 'Buscar cliente por nombre, apellido o cédula...',
@@ -531,7 +531,7 @@
                             </span>
                         </div>
                         <div>
-                            <div class="mb-0 fw-semibold text-dark">
+                            <div class="mb-0 fw-semibold">
                                 ${fullName}
                             </div>
                             <div class="text-muted small">CI: ${doc} | ${item.email ? escape(item.email) : 'Sin correo'}</div>
