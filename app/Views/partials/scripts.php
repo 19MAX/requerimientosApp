@@ -31,6 +31,18 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Validation JS -->
 <script src="<?= base_url('assets/js/file_validator.js') ?>"></script>
+<script>
+    function limitarCedula(input) {
+        input.value = input.value.replace(/\D/g, '').slice(0, 10);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.cedula-input').forEach(function(input) {
+            input.addEventListener('input', function() {
+                limitarCedula(this);
+            });
+        });
+    });
+</script>
 <?php
 $success = session()->getFlashdata('success');
 $error = session()->getFlashdata('error');

@@ -20,12 +20,12 @@
                                     <label for="cedula" class="form-label">Número de cédula</label>
                                     <input
                                         type="text"
-                                        class="form-control"
+                                        class="form-control cedula-input"
                                         id="cedula"
                                         name="cedula"
                                         value="<?= esc($cedula ?? '') ?>"
                                         placeholder="Ej: 0912345678"
-                                        maxlength="13"
+                                        maxlength="10"
                                         required>
                                 </div>
                                 <div class="col-md-4 d-grid align-self-end">
