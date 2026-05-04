@@ -42,19 +42,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="swiper-slide">
-                                        <div>
-                                            <h4>Pista de Auditoría</h4>
-                                            <div>
-                                                <p class="text-muted">Supervisa las últimas acciones críticas realizadas
-                                                    por los usuarios.</p>
-                                            </div>
-                                            <div class="mt-4">
-                                                <a href="<?= base_url('admin/audit/documents') ?>" class="btn btn-white btn-sm">Ir
-                                                    a Auditoría</a>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="swiper-pagination"></div>
                             </div>
