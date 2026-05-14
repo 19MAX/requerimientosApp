@@ -97,7 +97,8 @@
                     <table class="table text-nowrap mb-0 table-centered table-hover" id="liderTable">
                         <thead class="table-light">
                             <tr>
-                                <th>Documento Origen</th>
+                                <th>Nº de Trámite</th>
+                                <th>Título del Documento</th>
                                 <th>Asignado Por</th>
                                 <th>Fecha Límite</th>
                                 <th>Estado</th>
@@ -109,9 +110,12 @@
                                 <?php foreach ($assignments as $task): ?>
                                     <tr>
                                         <td>
+                                            <span class="fw-semibold text-primary"><?= esc($task['document_code'] ?? 'N/D') ?></span>
+                                        </td>
+                                        <td>
                                             <div class="text-truncate" style="max-width: 250px;"
                                                 title="<?= esc($task['document_title']) ?>">
-                                                <span class="fw-semibold"><?= esc($task['document_code'] ?? 'N/D') ?></span> - <?= esc($task['document_title']) ?>
+                                                <?= esc($task['document_title']) ?>
                                             </div>
                                         </td>
                                         <td><?= esc($task['director_name'] ?? 'N/A') ?></td>
@@ -162,6 +166,21 @@
                                                             d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                                     </svg>
                                                 </button>
+
+                                                <a href="<?= base_url('lider/my-assignments/view-flow/' . $task['id']) ?>" 
+                                                   class="btn btn-info btn-sm" 
+                                                   title="Ver Flujo del Documento">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-git-branch">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <circle cx="7" cy="7" r="3" />
+                                                        <circle cx="17" cy="7" r="3" />
+                                                        <path d="M7 17v-4h4v4" />
+                                                        <path d="M7 10v2a4 4 0 0 0 4 4h4" />
+                                                    </svg>
+                                                </a>
 
                                                 <?php if ($task['status'] === 'pendiente'): ?>
                                                     <form action="<?= base_url('lider/my-assignments/start') ?>" method="POST"
@@ -224,13 +243,19 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted mb-0">Documento de Origen</label>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label text-muted mb-0">Nº de Trámite</label>
+                        <p class="fw-bold mb-0 text-primary" id="detail_doc_code"></p>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label text-muted mb-0">Título del Documento</label>
                         <p class="fw-bold mb-1" id="detail_doc_title"></p>
                         <a href="#" id="detail_doc_link" class="btn btn-sm btn-outline-primary mt-1" target="_blank" rel="noopener">
                             Descargar Archivo Original
                         </a>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label text-muted mb-0">Asignado Por (Director)</label>
                         <p class="fw-bold mb-0" id="detail_director_name"></p>
@@ -313,7 +338,8 @@
 
     // Poblar y abrir el Modal de Detalles
     function openDetailsModal(task) {
-        document.getElementById('detail_doc_title').innerText = (task.document_code ? task.document_code : 'N/D') + ' - ' + task.document_title;
+        document.getElementById('detail_doc_code').innerText = task.document_code ? task.document_code : 'N/D';
+        document.getElementById('detail_doc_title').innerText = task.document_title;
         document.getElementById('detail_director_name').innerText = task.director_name;
         document.getElementById('detail_instructions').innerText = task.instructions;
 

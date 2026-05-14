@@ -30,7 +30,7 @@ class MyAssignmentsController extends BaseController
 
         // Obtener las asignaciones del usuario logeado con JOIN para traer info del doc y del director
         $assignments = $this->assignmentModel
-            ->select('assignments.*, documents.document_code, documents.title as document_title, documents.file_path as doc_file_path, users.name as director_name')
+            ->select('assignments.*, documents.document_code, documents.title as document_title, documents.file_path as doc_file_path, users.name as director_name, assignments.due_date, assignments.status as assignment_status')
             ->join('documents', 'documents.id = assignments.document_id')
             ->join('users', 'users.id = assignments.assigned_by')
             ->where('assignments.assigned_to', $userId)
@@ -226,5 +226,42 @@ class MyAssignmentsController extends BaseController
             log_message('critical', '[MyAssignmentsController::reportTask] Error al procesar reporte: ' . $e->getMessage());
             return redirect()->to('lider/my-assignments')->with('error', 'Ocurrió un error crítico al intentar guardar tu reporte. Contacta a soporte.');
         }
+    }
+
+    public function viewFlow($assignmentId)
+    {
+        $userId = session()->get('user_id');
+
+        $assignment = $this->assignmentModel
+            ->select('assignments.*, documents.document_code, documents.title as document_title, 
+                      documents.description as document_description, documents.file_path as initial_file_path,
+                      documents.file_name as initial_file_name, documents.status as document_status,
+                      users.name as director_name')
+            ->join('documents', 'documents.id = assignments.document_id')
+            ->join('users', 'users.id = assignments.assigned_by')
+            ->where('assignments.id', $assignmentId)
+            ->where('assignments.assigned_to', $userId)
+            ->first();
+
+        if (!$assignment) {
+            return redirect()->to('lider/my-assignments')->with('error', 'Asignación no encontrada.');
+        }
+
+        $activityReport = $this->reportModel
+            ->where('assignment_id', $assignmentId)
+            ->first();
+
+        $auditLogs = $this->db->table('audit_trail')
+            ->where('entity_type', 'documents')
+            ->where('entity_id', $assignment['document_id'])
+            ->orderBy('created_at', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        return view('lider/my_assignments/view_flow', [
+            'assignment' => $assignment,
+            'activityReport' => $activityReport,
+            'auditLogs' => $auditLogs
+        ]);
     }
 }

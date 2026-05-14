@@ -92,6 +92,7 @@ $routes->group('lider', ['filter' => ['auth', 'role:lider_area']], function ($ro
     $routes->get('/', 'Lider\DashboardController::index');
     // Vista principal de tareas
     $routes->get('my-assignments', 'Lider\MyAssignmentsController::index');
+    $routes->get('my-assignments/view-flow/(:num)', 'Lider\MyAssignmentsController::viewFlow/$1');
 
     // Procesamiento de acciones
     $routes->post('my-assignments/start', 'Lider\MyAssignmentsController::startTask');
