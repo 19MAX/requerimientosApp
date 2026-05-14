@@ -19,7 +19,7 @@ class CreateDocumentsTable extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => 30,
                 'after'      => 'id',
-                'comment'    => 'Código único de seguimiento. Ej: DOC-2026-04-01-0001',
+                'comment'    => 'Código único de seguimiento. Ej: 00001-2026-05-16',
             ],
             'created_by' => [
                 'type' => 'INT',
