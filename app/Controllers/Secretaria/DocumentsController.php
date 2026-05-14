@@ -157,6 +157,16 @@ class DocumentsController extends BaseController
                 log_message('error', '[EmailService] Falló el envío de correo de registro inicial. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
             }
 
+            // Notificar al director si fue asignado
+            $assignedDirectorId = $this->request->getPost('director_id');
+            if ($assignedDirectorId) {
+                try {
+                    \App\Services\EmailService::notifyDirectorAssignment($documentId, $assignedDirectorId);
+                } catch (\Throwable $e) {
+                    log_message('error', '[EmailService] Falló el envío de correo de asignación a director. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
+                }
+            }
+
             return redirect()->to('secretaria/documents')->with('success', [
                 'text' => "Documento {$documentCode} creado correctamente.",
                 'position' => 'top-end',
@@ -324,6 +334,17 @@ class DocumentsController extends BaseController
             // ── PASO 4: DB exitosa → ahora sí eliminar el archivo anterior
             if ($oldFilePath) {
                 deleteDocument($oldFilePath);
+            }
+
+            // Notificar al nuevo director si fue asignado o cambiado
+            $newDirectorId = $this->request->getPost('director_id');
+            $oldDirectorId = $document['director_id'] ?? null;
+            if ($newDirectorId && $newDirectorId != $oldDirectorId) {
+                try {
+                    \App\Services\EmailService::notifyDirectorAssignment($id, $newDirectorId);
+                } catch (\Throwable $e) {
+                    log_message('error', '[EmailService] Falló el envío de correo de asignación a director. DocID: ' . $id . '. Error: ' . $e->getMessage());
+                }
             }
 
             return redirect()->to('secretaria/documents')->with('success', [

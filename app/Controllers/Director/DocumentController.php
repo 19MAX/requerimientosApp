@@ -229,6 +229,14 @@ class DocumentController extends BaseController
                 throw new \Exception('Falló la transacción al aprobar y asignar.');
             }
 
+            // Notificar al líder de área
+            $leaderId = $this->request->getPost('assigned_to');
+            try {
+                \App\Services\EmailService::notifyLeaderAssignment($documentId, $leaderId);
+            } catch (\Throwable $e) {
+                log_message('error', '[EmailService] Falló el envío de correo de asignación a líder. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
+            }
+
             return redirect()->to('director/review-documents')
                 ->with('success', [
                     'text' => 'Documento aprobado y asignado correctamente.',
@@ -497,6 +505,13 @@ class DocumentController extends BaseController
 
             if ($this->db->transStatus() === false) {
                 throw new \Exception('Falló la transacción al reasignar.');
+            }
+
+            // Notificar al nuevo líder
+            try {
+                \App\Services\EmailService::notifyLeaderAssignment($documentId, $nuevoLiderId);
+            } catch (\Throwable $e) {
+                log_message('error', '[EmailService] Falló el envío de correo de reasignación a líder. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
             }
 
             return redirect()->to('director/review-documents')

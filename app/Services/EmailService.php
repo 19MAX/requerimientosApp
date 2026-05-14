@@ -112,4 +112,101 @@ class EmailService
         }
         return ucfirst(str_replace('_', ' ', $status));
     }
+
+    /**
+     * Notifica a un director que se le ha asignado un requerimiento.
+     */
+    public static function notifyDirectorAssignment(int $documentId, int $directorId): bool
+    {
+        $db = \Config\Database::connect();
+
+        $document = $db->table('documents')->where('id', $documentId)->get()->getRowArray();
+        if (!$document) {
+            return false;
+        }
+
+        $director = $db->table('users')->where('id', $directorId)->get()->getRowArray();
+        if (!$director || empty($director['email'])) {
+            return false;
+        }
+
+        $client = $db->table('clients')->where('id', $document['client_id'])->get()->getRowArray();
+        $createdByUser = $db->table('users')->where('id', $document['created_by'])->get()->getRowArray();
+
+        $email = Services::email();
+        $email->setMailType('html');
+        $email->setFrom('no-reply@cnel.gob.ec', 'Requerimientos CNEL');
+        $email->setTo($director['email']);
+
+        $docCode = $document['document_code'] ?? "#{$documentId}";
+        $subject = "Nuevo requerimiento asignado: {$docCode}";
+        $email->setSubject($subject);
+
+        $message = view('emails/director_assignment', [
+            'document' => $document,
+            'director' => $director,
+            'client' => $client,
+            'createdByUser' => $createdByUser,
+        ]);
+
+        $email->setMessage($message);
+
+        $success = $email->send();
+        if (!$success) {
+            log_message('error', 'Error al enviar correo de asignación a director: ' . $email->printDebugger(['headers']));
+        }
+
+        return $success;
+    }
+
+    /**
+     * Notifica a un líder de área que se le ha asignado un requerimiento.
+     */
+    public static function notifyLeaderAssignment(int $documentId, int $leaderId): bool
+    {
+        $db = \Config\Database::connect();
+
+        $document = $db->table('documents')->where('id', $documentId)->get()->getRowArray();
+        if (!$document) {
+            return false;
+        }
+
+        $leader = $db->table('users')->where('id', $leaderId)->get()->getRowArray();
+        if (!$leader || empty($leader['email'])) {
+            return false;
+        }
+
+        $client = $db->table('clients')->where('id', $document['client_id'])->get()->getRowArray();
+        $assignment = $db->table('assignments')
+            ->where('document_id', $documentId)
+            ->where('assigned_to', $leaderId)
+            ->orderBy('assigned_at', 'DESC')
+            ->get()
+            ->getRowArray();
+
+        $email = Services::email();
+        $email->setMailType('html');
+        $email->setFrom('no-reply@cnel.gob.ec', 'Requerimientos CNEL');
+        $email->setTo($leader['email']);
+
+        $docCode = $document['document_code'] ?? "#{$documentId}";
+        $subject = "Nuevo requerimiento asignado: {$docCode}";
+        $email->setSubject($subject);
+
+        $message = view('emails/leader_assignment', [
+            'document' => $document,
+            'leader' => $leader,
+            'client' => $client,
+            'assignment' => $assignment,
+        ]);
+
+        $email->setMessage($message);
+
+        $success = $email->send();
+        if (!$success) {
+            log_message('error', 'Error al enviar correo de asignación a líder: ' . $email->printDebugger(['headers']));
+        }
+
+        return $success;
+    }
 }
