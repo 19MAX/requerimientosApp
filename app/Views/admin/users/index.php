@@ -32,6 +32,7 @@
                                 <th>Correo Electrónico</th>
                                 <th>Teléfono</th>
                                 <th>Rol</th>
+                                <th>Categoría</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -54,6 +55,15 @@
                                             <span class="badge bg-secondary-subtle text-secondary-emphasis">
                                                 <?= esc($user['role_name'] ?? 'Desconocido') ?>
                                             </span>
+                                        </td>
+                                        <td>
+                                            <?php if (!empty($user['category_name'])): ?>
+                                                <span class="badge bg-info-subtle text-info-emphasis">
+                                                    <?= esc($user['category_name']) ?>
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="text-muted">—</span>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if ($user['is_active']): ?>
@@ -132,10 +142,21 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Rol del Sistema <span class="text-danger">*</span></label>
-                            <select class="form-select" name="role_id" required>
+                            <select class="form-select" name="role_id" id="create_role_id" required onchange="toggleCategoryField(this.value, 'create')">
                                 <option value="">Seleccione un rol...</option>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= esc($role['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" id="create_category_row" style="display: none;">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Categoría del Líder</label>
+                            <select class="form-select" name="leader_category_id" id="create_leader_category_id">
+                                <option value="">Seleccione una categoría...</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= $category['id'] ?>"><?= esc($category['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -181,9 +202,20 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Rol del Sistema</label>
-                            <select class="form-select" name="role_id" id="edit_role_id" required>
+                            <select class="form-select" name="role_id" id="edit_role_id" required onchange="toggleCategoryField(this.value, 'edit')">
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role['id'] ?>"><?= esc($role['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" id="edit_category_row" style="display: none;">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Categoría del Líder</label>
+                            <select class="form-select" name="leader_category_id" id="edit_leader_category_id">
+                                <option value="">Seleccione una categoría...</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= $category['id'] ?>"><?= esc($category['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -254,7 +286,20 @@
             }
         }
     });
-    // Función para poblar el modal de edición
+
+    function toggleCategoryField(roleId, prefix) {
+        const categoryRow = document.getElementById(prefix + '_category_row');
+        const categorySelect = document.getElementById(prefix + '_leader_category_id');
+        const liderAreaRoleId = <?= $liderAreaRoleId ?? 0 ?>;
+
+        if (parseInt(roleId) === liderAreaRoleId) {
+            categoryRow.style.display = 'flex';
+        } else {
+            categoryRow.style.display = 'none';
+            categorySelect.value = '';
+        }
+    }
+
     function openEditModal(user) {
         document.getElementById('edit_user_id').value = user.id;
         document.getElementById('edit_name').value = user.name;
@@ -262,12 +307,14 @@
         document.getElementById('edit_phone').value = user.phone;
         document.getElementById('edit_role_id').value = user.role_id;
         document.getElementById('edit_is_active').value = user.is_active;
+        document.getElementById('edit_leader_category_id').value = user.leader_category_id || '';
+
+        toggleCategoryField(user.role_id, 'edit');
 
         var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
         editModal.show();
     }
 
-    // Función para poblar el modal de eliminación
     function openDeleteModal(id, name) {
         document.getElementById('delete_user_id').value = id;
         document.getElementById('delete_user_name').innerText = name;

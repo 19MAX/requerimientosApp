@@ -21,6 +21,12 @@ class CreateUsersTable extends Migration
                 'unsigned' => true,
                 'null' => false,
             ],
+            'leader_category_id' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
+                'null' => true,
+            ],
             'name' => [
                 'type' => 'VARCHAR',
                 'constraint' => 100,
@@ -69,7 +75,10 @@ class CreateUsersTable extends Migration
         $this->forge->addKey('id', true);
         $this->forge->addUniqueKey('email');
         $this->forge->addKey('role_id');
+        $this->forge->addKey('leader_category_id');
         $this->forge->addForeignKey('role_id', 'roles', 'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('leader_category_id', 'leader_categories', 'id', 'RESTRICT', 'CASCADE');
+
         $this->forge->createTable('users');
     }
 

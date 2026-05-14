@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\LeaderCategoryModel;
 use App\Models\RolesModel;
 use App\Models\UsersModel;
 
@@ -10,38 +11,44 @@ class UsersController extends BaseController
 {
     protected $userModel;
     protected $rolesModel;
+    protected $leaderCategoryModel;
 
     public function __construct()
     {
         $this->userModel = new UsersModel();
         $this->rolesModel = new RolesModel();
+        $this->leaderCategoryModel = new LeaderCategoryModel();
     }
 
     public function index()
     {
-        // Obtener usuarios con el nombre de su rol
-        $users = $this->userModel->select('users.*, roles.name as role_name')
-            ->join('roles', 'roles.id = users.role_id')
-            ->where('users.role_id !=', 1) // Excluir usuarios administradores
+        $users = $this->userModel->select('users.*, roles.name as role_name, lc.name as category_name')
+            ->join('roles', 'roles.id = users.role_id', 'left')
+            ->join('leader_categories lc', 'lc.id = users.leader_category_id', 'left')
+            ->where('users.role_id !=', 1)
             ->findAll();
 
-        $roles = $this->rolesModel->select('id, name')->where('id !=', 1)->findAll(); // Excluir usuarios administradores
+        $roles = $this->rolesModel->select('id, name')->where('id !=', 1)->findAll();
+        $categories = $this->leaderCategoryModel->findAll();
+        $liderAreaRole = $this->rolesModel->where('slug', 'lider_area')->first();
 
         return view('admin/users/index', [
             'users' => $users,
-            'roles' => $roles
+            'roles' => $roles,
+            'categories' => $categories,
+            'liderAreaRoleId' => $liderAreaRole['id'] ?? null
         ]);
     }
 
     public function create()
     {
         try {
-            // password viene siempre en create, así que la regla 'required' aplica normalmente
             $data = $this->request->getPost([
                 'name',
                 'email',
                 'phone',
                 'role_id',
+                'leader_category_id',
                 'password'
             ]);
             $data['is_active'] = 1;
@@ -81,6 +88,7 @@ class UsersController extends BaseController
                 'email',
                 'phone',
                 'role_id',
+                'leader_category_id',
                 'is_active'
             ]);
 

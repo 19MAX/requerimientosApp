@@ -42,6 +42,26 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" href="<?= base_url('admin/leader-categories') ?>">
+                <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-category">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M4 4h4v4h-4z"></path>
+                        <path d="M10 4h4v4h-4z"></path>
+                        <path d="M4 10h4v4h-4z"></path>
+                        <path d="M10 10h4v4h-4z"></path>
+                        <path d="M16 4h4v4h-4z"></path>
+                        <path d="M16 10h4v4h-4z"></path>
+                        <path d="M4 16h4v4h-4z"></path>
+                        <path d="M10 16h4v4h-4z"></path>
+                    </svg>
+                </span>
+                <span class="text">Categorías de Líderes</span>
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="<?= base_url('admin/clients') ?>">
                 <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"

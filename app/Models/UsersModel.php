@@ -13,7 +13,7 @@ class UsersModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'role_id', 'name', 'email', 'phone', 'password', 'is_active', 'last_login_at'
+        'role_id', 'leader_category_id', 'name', 'email', 'phone', 'password', 'is_active', 'last_login_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -47,6 +47,10 @@ class UsersModel extends Model
         'role_id' => [
             'label' => 'Rol',
             'rules' => 'required|is_natural_no_zero',
+        ],
+        'leader_category_id' => [
+            'label' => 'Categoría de Líder',
+            'rules' => 'permit_empty|is_natural_no_zero',
         ],
         'is_active' => [
             'label' => 'Estado',

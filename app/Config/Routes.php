@@ -29,6 +29,11 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
     $routes->post('users/update', 'Admin\UsersController::update');
     $routes->post('users/delete', 'Admin\UsersController::delete');
 
+    $routes->get('leader-categories', 'Admin\LeaderCategoriesController::index');
+    $routes->post('leader-categories/create', 'Admin\LeaderCategoriesController::create');
+    $routes->post('leader-categories/update', 'Admin\LeaderCategoriesController::update');
+    $routes->post('leader-categories/delete', 'Admin\LeaderCategoriesController::delete');
+
     $routes->group('clients', function ($routes) {
         $routes->get('/', 'Admin\ClientsController::index');
         $routes->post('create', 'Admin\ClientsController::create');
