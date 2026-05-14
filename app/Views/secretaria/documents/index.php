@@ -258,6 +258,10 @@
                             <input type="text" class="form-control" name="title"
                                 placeholder="Ej: Petición de Mantenimiento" required>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Director Asignado <span class="text-muted fw-normal">(opcional)</span></label>
+                            <select id="select-director" name="director_id" placeholder="Buscar director por nombre..."></select>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Descripción o Detalle</label>
@@ -383,6 +387,10 @@
                             <label class="form-label">Título del Documento / Asunto <span
                                     class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="title" id="edit_title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Director Asignado <span class="text-muted fw-normal">(opcional)</span></label>
+                            <select id="edit-select-director" name="director_id"></select>
                         </div>
                     </div>
 
@@ -547,6 +555,59 @@
         }
     });
 
+    // ── Tom Select: Directores ───────────────────────────────────
+    let directorSelect = new TomSelect('#select-director', {
+        valueField: 'id',
+        searchField: ['name', 'email'],
+        placeholder: 'Buscar director por nombre o correo...',
+        load: function (query, callback) {
+            if (query.length < 2) return callback();
+
+            var url = '<?= base_url('secretaria/directors/search') ?>?q=' + encodeURIComponent(query);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(json => {
+                    if (json.success && json.data) {
+                        callback(json.data);
+                    } else {
+                        callback();
+                    }
+                }).catch(() => {
+                    callback();
+                });
+        },
+        render: {
+            option: function (item, escape) {
+                let initial = escape(item.name.charAt(0).toUpperCase());
+                let name = escape(item.name);
+                let email = item.email ? escape(item.email) : '';
+
+                return `<div class="py-2 px-3 d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="d-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-circle fw-bold" style="width: 36px; height: 36px;">
+                                ${initial}
+                            </span>
+                        </div>
+                        <div>
+                            <div class="mb-0 fw-semibold">${name}</div>
+                            <div class="text-muted small">${email}</div>
+                        </div>
+                    </div>`;
+            },
+            item: function (item, escape) {
+                let name = escape(item.name);
+                return `<div class="d-flex align-items-center">
+                        <i class="fa-solid fa-user-tie text-warning me-2"></i>
+                        <span class="fw-medium">${name}</span>
+                    </div>`;
+            },
+            no_results: function () {
+                return `<div class="px-3 py-2 text-muted small">Sin resultados</div>`;
+            }
+        }
+    });
+
     let editClientSelect = new TomSelect('#edit-select-client', {
         valueField: 'id',
         searchField: ['first_name', 'last_name', 'cedula', 'email'],
@@ -570,6 +631,59 @@
             },
             item: function (item, escape) {
                 return `<div>${escape(item.first_name + ' ' + item.last_name)}</div>`;
+            }
+        }
+    });
+
+    // ── Tom Select: Directores para edición ───────────────────
+    let editDirectorSelect = new TomSelect('#edit-select-director', {
+        valueField: 'id',
+        searchField: ['name', 'email'],
+        placeholder: 'Buscar director por nombre o correo...',
+        load: function (query, callback) {
+            if (query.length < 2) return callback();
+
+            var url = '<?= base_url('secretaria/directors/search') ?>?q=' + encodeURIComponent(query);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(json => {
+                    if (json.success && json.data) {
+                        callback(json.data);
+                    } else {
+                        callback();
+                    }
+                }).catch(() => {
+                    callback();
+                });
+        },
+        render: {
+            option: function (item, escape) {
+                let initial = escape(item.name.charAt(0).toUpperCase());
+                let name = escape(item.name);
+                let email = item.email ? escape(item.email) : '';
+
+                return `<div class="py-2 px-3 d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="d-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-circle fw-bold" style="width: 36px; height: 36px;">
+                                ${initial}
+                            </span>
+                        </div>
+                        <div>
+                            <div class="mb-0 fw-semibold">${name}</div>
+                            <div class="text-muted small">${email}</div>
+                        </div>
+                    </div>`;
+            },
+            item: function (item, escape) {
+                let name = escape(item.name);
+                return `<div class="d-flex align-items-center">
+                        <i class="fa-solid fa-user-tie text-warning me-2"></i>
+                        <span class="fw-medium">${name}</span>
+                    </div>`;
+            },
+            no_results: function () {
+                return `<div class="px-3 py-2 text-muted small">Sin resultados</div>`;
             }
         }
     });
@@ -741,7 +855,8 @@
     document.getElementById('createDocumentModal').addEventListener('hidden.bs.modal', function () {
         removeFile('create');
         document.getElementById('createForm').reset();
-        clientSelect.clear(); // Limpiar Tom Select
+        clientSelect.clear();
+        directorSelect.clear();
     });
 
     // ── Modal de edición ─────────────────────────────────────────
@@ -754,10 +869,20 @@
         if (doc.client_id) {
             editClientSelect.addOption({
                 id: doc.client_id,
-                first_name: doc.client_full_name, // puedes separar si quieres
+                first_name: doc.client_full_name,
                 last_name: ''
             });
             editClientSelect.setValue(doc.client_id);
+        }
+
+        // ✅ Cargar director seleccionado
+        if (doc.director_id) {
+            editDirectorSelect.addOption({
+                id: doc.director_id,
+                name: doc.director_name || '',
+                email: doc.director_email || ''
+            });
+            editDirectorSelect.setValue(doc.director_id);
         }
 
         // archivo actual
@@ -777,6 +902,7 @@
     // ── Limpiar modal de editar al cerrarse ──────────────────────
     document.getElementById('editDocumentModal').addEventListener('hidden.bs.modal', function () {
         removeFile('edit');
+        editDirectorSelect.clear();
     });
 
     // ── Modal de eliminación ─────────────────────────────────────

@@ -11,8 +11,13 @@ class DocumentModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $protectFields    = false;
-    protected $allowedFields    = [];
+    protected $protectFields    = true;
+    protected $allowedFields    = [
+        'document_code', 'created_by', 'client_id', 'title', 'description',
+        'file_path', 'file_name', 'file_size', 'file_mime', 'status',
+        'reviewed_by', 'reviewed_at', 'review_notes', 'director_id',
+        'created_at', 'updated_at', 'deleted_at'
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

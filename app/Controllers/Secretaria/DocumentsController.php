@@ -17,6 +17,7 @@ class DocumentsController extends BaseController
     {
         $this->documentModel = new DocumentModel();
         $this->clientsModel = new ClientsModel();
+        $this->usersModel = new \App\Models\UsersModel();
         $this->db = \Config\Database::connect();
         helper(['document', 'audit', 'status', 'formatDate']);
 
@@ -29,16 +30,22 @@ class DocumentsController extends BaseController
             d.*,
             CONCAT(c.first_name, " ", c.last_name) AS client_full_name,
             c.cedula   AS client_cedula,
-            c.phone    AS client_phone
+            c.phone    AS client_phone,
+            d2.name    AS director_name,
+            d2.email   AS director_email
         ')
             ->join('clients c', 'c.id = d.client_id', 'left')
+            ->join('users d2', 'd2.id = d.director_id', 'left')
             ->where('d.deleted_at', null)
             ->orderBy('d.id', 'DESC')
             ->get()
             ->getResultArray();
 
+        $directors = $this->usersModel->getDirectors();
+
         return view('secretaria/documents/index', [
             'documents' => $documents,
+            'directors' => $directors,
         ]);
     }
 
@@ -58,6 +65,10 @@ class DocumentsController extends BaseController
                 'description' => [
                     'label' => 'Descripción',
                     'rules' => 'permit_empty|max_length[1000]',
+                ],
+                'director_id' => [
+                    'label' => 'Director',
+                    'rules' => 'permit_empty|integer|is_not_unique[users.id]',
                 ],
                 'document_file' => [
                     'label' => 'Archivo',
@@ -98,6 +109,7 @@ class DocumentsController extends BaseController
                 'client_id' => $this->request->getPost('client_id'),
                 'title' => $this->request->getPost('title'),
                 'description' => $this->request->getPost('description'),
+                'director_id' => $this->request->getPost('director_id') ?: null,
                 'file_path' => $fileData['file_path'],
                 'file_name' => $fileData['file_name'],
                 'file_size' => $fileData['file_size'],
@@ -241,6 +253,10 @@ class DocumentsController extends BaseController
                 ],
                 'title' => ['label' => 'Título', 'rules' => 'required|max_length[200]'],
                 'description' => ['label' => 'Descripción', 'rules' => 'permit_empty|max_length[1000]'],
+                'director_id' => [
+                    'label' => 'Director',
+                    'rules' => 'permit_empty|integer|is_not_unique[users.id]',
+                ],
             ];
 
             $file = $this->request->getFile('document_file');
@@ -261,6 +277,7 @@ class DocumentsController extends BaseController
                 'client_id' => $this->request->getPost('client_id'),
                 'title' => $this->request->getPost('title'),
                 'description' => $this->request->getPost('description'),
+                'director_id' => $this->request->getPost('director_id') ?: null,
             ];
 
             // ── PASO 1: Subir nuevo archivo si fue seleccionado ──────────
@@ -474,5 +491,27 @@ class DocumentsController extends BaseController
                     'message' => 'Error al crear el cliente: ' . $e->getMessage(),
                 ]);
         }
+    }
+
+    public function searchDirectors(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $q = trim($this->request->getGet('q') ?? '');
+
+        if (strlen($q) < 2) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Ingresa al menos 2 caracteres para buscar.',
+                'data' => [],
+            ]);
+        }
+
+        $usersModel = new \App\Models\UsersModel();
+        $directors = $usersModel->searchDirectors($q);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'count' => count($directors),
+            'data' => $directors,
+        ]);
     }
 }

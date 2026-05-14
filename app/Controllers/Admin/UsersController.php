@@ -43,18 +43,41 @@ class UsersController extends BaseController
     public function create()
     {
         try {
+
             $data = $this->request->getPost([
                 'name',
                 'email',
                 'phone',
                 'role_id',
-                'leader_category_id',
                 'password'
             ]);
+
+            // Solo agregar category si es líder
+            if ($data['role_id'] == 4) {
+
+                $leaderCategoryId = $this->request->getPost('leader_category_id');
+
+                if (empty($leaderCategoryId)) {
+                    return redirect()->back()->withInput()->with('error', [
+                        'text' => 'Debe seleccionar una categoría para el líder.',
+                        'position' => 'center'
+                    ]);
+                }
+
+                $data['leader_category_id'] = $leaderCategoryId;
+
+            } else {
+
+                // Para otros roles mandamos null
+                $data['leader_category_id'] = null;
+            }
+
             $data['is_active'] = 1;
 
             if ($this->userModel->insert($data) === false) {
+
                 $errores = implode('<br>', $this->userModel->errors());
+
                 return redirect()->back()->withInput()->with('error', [
                     'text' => $errores,
                     'position' => 'center'
@@ -65,6 +88,7 @@ class UsersController extends BaseController
                 'text' => 'Usuario creado correctamente',
                 'position' => 'top-end'
             ]);
+
         } catch (\Exception $e) {
 
             log_message('error', 'Error en UsersController::create: ' . $e->getMessage());
@@ -79,28 +103,66 @@ class UsersController extends BaseController
     public function update()
     {
         try {
+
             $id = $this->request->getPost('id');
 
-            // Incluimos 'id' para que {id} funcione en is_unique, igual que en ClientsController
             $data = $this->request->getPost([
                 'id',
                 'name',
                 'email',
                 'phone',
                 'role_id',
-                'leader_category_id',
                 'is_active'
             ]);
 
-            // Si password viene vacía la excluimos del array:
-            // cleanValidationRules la ignorará y hashPassword no la tocará
+            /*
+            |--------------------------------------------------------------------------
+            | Validar categoría solo para líderes
+            |--------------------------------------------------------------------------
+            */
+
+            if ($data['role_id'] == 4) {
+
+                $leaderCategoryId = $this->request->getPost('leader_category_id');
+
+                if (empty($leaderCategoryId)) {
+
+                    return redirect()->back()->withInput()->with('error', [
+                        'text' => 'Debe seleccionar una categoría para el líder.',
+                        'position' => 'center'
+                    ]);
+                }
+
+                $data['leader_category_id'] = $leaderCategoryId;
+
+            } else {
+
+                // Si NO es líder eliminamos la categoría
+                $data['leader_category_id'] = null;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Password opcional
+            |--------------------------------------------------------------------------
+            */
+
             $password = $this->request->getPost('password');
+
             if (!empty($password)) {
                 $data['password'] = $password;
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar usuario
+            |--------------------------------------------------------------------------
+            */
+
             if ($this->userModel->update($id, $data) === false) {
+
                 $errores = implode('<br>', $this->userModel->errors());
+
                 return redirect()->back()->withInput()->with('error', [
                     'text' => $errores,
                     'position' => 'center'
@@ -111,8 +173,11 @@ class UsersController extends BaseController
                 'text' => 'Usuario actualizado correctamente',
                 'position' => 'top-end'
             ]);
+
         } catch (\Exception $e) {
+
             log_message('error', 'Error en UsersController::update: ' . $e->getMessage());
+
             return redirect()->back()->withInput()->with('error', [
                 'text' => 'Ocurrió un error al actualizar el usuario',
                 'position' => 'center'
@@ -134,7 +199,7 @@ class UsersController extends BaseController
 
         // Evitar que el usuario logeado se elimine a sí mismo
         if ($id == session()->get('user_id')) {
-            return redirect()->to('admin/users')->with('error',[
+            return redirect()->to('admin/users')->with('error', [
                 'text' => 'No puedes eliminar tu propio usuario.',
                 'position' => 'center'
             ]);

@@ -28,20 +28,32 @@ class DocumentController extends BaseController
 
     public function index()
     {
-        // 1. Obtener documentos que requieren atención del director (excluye asignados, trabajando y completados)
-        $documents = $this->documentModel->select('documents.*, users.name as creator_name, CONCAT(c.first_name, " ", c.last_name) AS client_full_name')
+        $currentDirectorId = session()->get('user_id');
+
+        // Documentos asignados a este director (prioridad alta)
+        $myDocuments = $this->documentModel->select('documents.*, users.name as creator_name, CONCAT(c.first_name, " ", c.last_name) AS client_full_name')
             ->join('users', 'users.id = documents.created_by', 'left')
             ->join('clients c', 'c.id = documents.client_id', 'left')
+            ->where('documents.director_id', $currentDirectorId)
             ->whereIn('documents.status', ['pendiente', 'en_revision', 'rechazado'])
             ->orderBy('documents.created_at', 'DESC')
             ->findAll();
 
-        // 2. Obtener el ID del rol 'lider_area' para filtrar los usuarios
+        // Documentos sin director asignado (otros directores pueden tomarlos)
+        $otherDocuments = $this->documentModel->select('documents.*, users.name as creator_name, CONCAT(c.first_name, " ", c.last_name) AS client_full_name')
+            ->join('users', 'users.id = documents.created_by', 'left')
+            ->join('clients c', 'c.id = documents.client_id', 'left')
+            ->where('documents.director_id IS NULL')
+            ->whereIn('documents.status', ['pendiente', 'en_revision', 'rechazado'])
+            ->orderBy('documents.created_at', 'DESC')
+            ->findAll();
+
+        $documents = array_merge($myDocuments, $otherDocuments);
+
         $roleLider = $this->db->table('roles')->where('slug', 'lider_area')->get()->getRow();
 
         $lideres = [];
         if ($roleLider) {
-            // Obtener todos los líderes de área activos
             $lideres = $this->userModel->where('role_id', $roleLider->id)
                 ->where('is_active', 1)
                 ->findAll();

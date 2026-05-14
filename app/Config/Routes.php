@@ -69,6 +69,7 @@ $routes->group('secretaria', ['filter' => ['auth', 'role:secretaria']], function
 
     $routes->get('clients/search', 'Secretaria\DocumentsController::search');
     $routes->post('clients/store', 'Secretaria\DocumentsController::store');
+    $routes->get('directors/search', 'Secretaria\DocumentsController::searchDirectors');
 
     $routes->get('document-search', 'Secretaria\DocumentSearchController::index');
     $routes->get('document-search/search', 'Secretaria\DocumentSearchController::search');

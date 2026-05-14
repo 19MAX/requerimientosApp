@@ -73,8 +73,36 @@ class UsersModel extends Model
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
     protected $afterFind      = [];
-    protected $beforeDelete   = [];
+protected $beforeDelete    = [];
     protected $afterDelete    = [];
+
+    public function getDirectors()
+    {
+        return $this->db->table('users u')
+            ->select('u.id, u.name, u.email')
+            ->join('roles r', 'r.id = u.role_id')
+            ->where('r.slug', 'director')
+            ->where('u.is_active', 1)
+            ->orderBy('u.name', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function searchDirectors(string $query): array
+    {
+        return $this->db->table('users u')
+            ->select('u.id, u.name, u.email')
+            ->join('roles r', 'r.id = u.role_id')
+            ->where('r.slug', 'director')
+            ->where('u.is_active', 1)
+            ->groupStart()
+            ->like('u.name', $query, 'both')
+            ->orLike('u.email', $query, 'both')
+            ->groupEnd()
+            ->orderBy('u.name', 'ASC')
+            ->get(10)
+            ->getResultArray();
+    }
 
     protected function hashPassword(array $data)
     {
