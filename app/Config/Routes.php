@@ -100,4 +100,6 @@ $routes->group('lider', ['filter' => ['auth', 'role:lider_area']], function ($ro
 
     $routes->get('document-search', 'Lider\DocumentSearchController::index');
     $routes->get('document-search/search', 'Lider\DocumentSearchController::search');
+    $routes->get('document-search/data', 'Lider\DocumentSearchController::data');
+    $routes->get('document-search/view-history/(:num)', 'Lider\DocumentSearchController::viewHistory/$1');
 });

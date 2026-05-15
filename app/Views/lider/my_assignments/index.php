@@ -19,7 +19,10 @@
                             <p class="mb-0 text-muted">Total Asignaciones</p>
                         </div>
                         <div class="icon-shape icon-md bg-primary-subtle text-primary rounded-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-list-check">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-list-check">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
                                 <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
@@ -42,7 +45,9 @@
                             <p class="mb-0 text-muted">Pendientes</p>
                         </div>
                         <div class="icon-shape icon-md bg-warning-subtle text-warning-emphasis rounded-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
                                 <path d="M12 7v5l3 3" />
@@ -61,7 +66,10 @@
                             <p class="mb-0 text-muted">En Progreso</p>
                         </div>
                         <div class="icon-shape icon-md bg-info-subtle text-info-emphasis rounded-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-player-play">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-player-play">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M7 4v16l13 -8z" />
                             </svg>
@@ -79,7 +87,9 @@
                             <p class="mb-0 text-muted">Completadas</p>
                         </div>
                         <div class="icon-shape icon-md bg-success-subtle text-success-emphasis rounded-circle">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-check">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M5 12l5 5l10 -10" />
                             </svg>
@@ -110,7 +120,8 @@
                                 <?php foreach ($assignments as $task): ?>
                                     <tr>
                                         <td>
-                                            <span class="fw-semibold text-primary"><?= esc($task['document_code'] ?? 'N/D') ?></span>
+                                            <span
+                                                class="fw-semibold text-primary"><?= esc($task['document_code'] ?? 'N/D') ?></span>
                                         </td>
                                         <td>
                                             <div class="text-truncate" style="max-width: 250px;"
@@ -167,9 +178,8 @@
                                                     </svg>
                                                 </button>
 
-                                                <a href="<?= base_url('lider/my-assignments/view-flow/' . $task['id']) ?>" 
-                                                   class="btn btn-info btn-sm" 
-                                                   title="Ver Flujo del Documento">
+                                                <a href="<?= base_url('lider/my-assignments/view-flow/' . $task['id']) ?>"
+                                                    class="btn btn-info btn-sm" title="Ver Flujo del Documento">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                         stroke-linecap="round" stroke-linejoin="round"
@@ -188,8 +198,8 @@
                                                         <input type="hidden" name="assignment_id" value="<?= $task['id'] ?>">
                                                         <button type="submit" class="btn btn-primary btn-sm" title="Iniciar Tarea">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                                stroke-linecap="round" stroke-linejoin="round"
+                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                                                 class="icon icon-tabler icons-tabler-outline icon-tabler-player-play">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                 <path d="M7 4v16l13 -8z" />
@@ -215,7 +225,10 @@
 
                                                 <?php else: ?>
                                                     <span class="text-success p-1" title="Finalizado">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-check">
                                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                             <path d="M5 12l5 5l10 -10" />
                                                         </svg>
@@ -250,7 +263,8 @@
                     <div class="col-md-8 mb-3">
                         <label class="form-label text-muted mb-0">Título del Documento</label>
                         <p class="fw-bold mb-1" id="detail_doc_title"></p>
-                        <a href="#" id="detail_doc_link" class="btn btn-sm btn-outline-primary mt-1" target="_blank" rel="noopener">
+                        <a href="#" id="detail_doc_link" class="btn btn-sm btn-outline-primary mt-1" target="_blank"
+                            rel="noopener">
                             Descargar Archivo Original
                         </a>
                     </div>
@@ -275,8 +289,7 @@
                             <path
                                 d="M9 18h-3a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-3l-3 3l-3 -3z" />
                         </svg> Instrucciones del Director</label>
-                    <div class="p-3 bg-gray-100 rounded" id="detail_instructions"
-                        style="white-space: pre-wrap;"></div>
+                    <div class="p-3 bg-gray-100 rounded" id="detail_instructions" style="white-space: pre-wrap;"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -328,12 +341,47 @@
 
 <?= $this->section('scripts') ?>
 <script>
-    // Inicializar DataTables
+    // Inicializar DataTables con botones de exportación
     new DataTable('#liderTable', {
         language: {
             url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json',
         },
-        order: [[0, 'desc']] // Las más recientes primero
+        scrollX: true,
+        layout: {
+            topStart: {
+
+                buttons: [
+
+                    'pageLength',
+                    {
+                        extend: 'excel',
+                        text: '<i class="fa-solid fa-file-excel"></i> Excel',
+                        className: 'btn btn-success btn-sm',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        },
+                        filename: 'mis_asignaciones_<?= date('Y-m-d') ?>',
+                        title: 'Mis Asignaciones - <?= date('d/m/Y') ?>'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fa-solid fa-file-pdf"></i> PDF',
+                        className: 'btn btn-danger btn-sm',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        },
+                        filename: 'mis_asignaciones_<?= date('Y-m-d') ?>',
+                        title: 'Mis Asignaciones - <?= date('d/m/Y') ?>',
+                        customize: function (doc) {
+                            doc.defaultStyle.fontSize = 9;
+                            doc.pageOrientation = 'landscape';
+                        }
+                    }
+                ],
+            }
+        },
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]]
     });
 
     // Poblar y abrir el Modal de Detalles

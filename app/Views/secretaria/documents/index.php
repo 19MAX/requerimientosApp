@@ -496,7 +496,7 @@
     new DataTable('#miTabla', {
         language: { url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json' },
         scrollX: true,
-        layout: { topStart: { buttons: ['copy', 'excel', 'pdf', 'colvis'] } }
+        layout: { topStart: { buttons: ['pageLength', 'excel', 'pdf', 'colvis'] } }
     });
 
     // ── Tom Select: Búsqueda de Clientes ─────────────────────────
