@@ -259,50 +259,56 @@
                                 placeholder="Ej: Petición de Mantenimiento" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Director Asignado <span class="text-muted fw-normal">(opcional)</span></label>
-                            <select id="select-director" name="director_id" placeholder="Buscar director por nombre..."></select>
+                            <label class="form-label">Director Asignado <span
+                                    class="text-muted fw-normal">(opcional)</span></label>
+                            <select id="select-director" name="director_id"
+                                placeholder="Buscar director por nombre..."></select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción o Detalle</label>
-                        <textarea class="form-control" name="description" rows="3"
-                            placeholder="Breve descripción del trámite..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Adjuntar Archivo (PDF, DOC, DOCX) <span
-                                class="text-danger">*</span></label>
+                    <div class="row">
 
-                        <div class="dropzone-area" id="createDropzone">
-                            <input type="file" name="document_file" id="createFileInput" accept=".pdf,.doc,.docx"
-                                required
-                                style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round" class="dz-icon">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                <path d="M12 11v6" />
-                                <path d="M9.5 13.5l2.5 -2.5l2.5 2.5" />
-                            </svg>
-                            <p class="dz-label">Arrastra tu archivo aquí o <span>haz clic para buscar</span></p>
-                            <p class="mb-0" style="font-size:0.78rem;color:#adb5bd;">PDF, DOC, DOCX — máx. 5 MB</p>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Descripción o Detalle</label>
+                            <textarea class="form-control" name="description" rows="3"
+                                placeholder="Breve descripción del trámite..."></textarea>
                         </div>
+                        <div class="col-md-6 mb-3">
 
-                        <div class="file-preview" id="createFilePreview">
-                            <span class="file-icon" id="createFileIcon">📄</span>
-                            <div class="file-info">
-                                <p class="file-name" id="createFileName">archivo.pdf</p>
-                                <p class="file-size" id="createFileSize">0 KB</p>
-                            </div>
-                            <button type="button" class="btn-remove" onclick="removeFile('create')"
-                                title="Quitar archivo">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M18 6L6 18M6 6l12 12" />
+                            <label class="form-label">Adjuntar Archivo (PDF, DOC, DOCX) <span
+                                    class="text-danger">*</span></label>
+
+                            <div class="dropzone-area" id="createDropzone">
+                                <input type="file" name="document_file" id="createFileInput" accept=".pdf,.doc,.docx"
+                                    required
+                                    style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" class="dz-icon">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                    <path d="M12 11v6" />
+                                    <path d="M9.5 13.5l2.5 -2.5l2.5 2.5" />
                                 </svg>
-                            </button>
+                                <p class="dz-label">Arrastra tu archivo aquí o <span>haz clic para buscar</span></p>
+                                <p class="mb-0" style="font-size:0.78rem;color:#adb5bd;">PDF, DOC, DOCX — máx. 5 MB</p>
+                            </div>
+
+                            <div class="file-preview" id="createFilePreview">
+                                <span class="file-icon" id="createFileIcon">📄</span>
+                                <div class="file-info">
+                                    <p class="file-name" id="createFileName">archivo.pdf</p>
+                                    <p class="file-size" id="createFileSize">0 KB</p>
+                                </div>
+                                <button type="button" class="btn-remove" onclick="removeFile('create')"
+                                    title="Quitar archivo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M18 6L6 18M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -389,7 +395,8 @@
                             <input type="text" class="form-control" name="title" id="edit_title" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Director Asignado <span class="text-muted fw-normal">(opcional)</span></label>
+                            <label class="form-label">Director Asignado <span
+                                    class="text-muted fw-normal">(opcional)</span></label>
                             <select id="edit-select-director" name="director_id"></select>
                         </div>
                     </div>

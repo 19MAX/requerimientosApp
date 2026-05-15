@@ -3,6 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\AssignmentModel;
+use App\Models\DocumentModel;
 use App\Models\LeaderCategoryModel;
 use App\Models\RolesModel;
 use App\Models\UsersModel;
@@ -12,12 +14,16 @@ class UsersController extends BaseController
     protected $userModel;
     protected $rolesModel;
     protected $leaderCategoryModel;
+    protected $documentModel;
+    protected $assignmentModel;
 
     public function __construct()
     {
         $this->userModel = new UsersModel();
         $this->rolesModel = new RolesModel();
         $this->leaderCategoryModel = new LeaderCategoryModel();
+        $this->documentModel = new DocumentModel();
+        $this->assignmentModel = new AssignmentModel();
     }
 
     public function index()
@@ -189,7 +195,6 @@ class UsersController extends BaseController
     {
         $id = $this->request->getPost('id');
 
-        // Validación básica de seguridad
         if (!$id || !is_numeric($id)) {
             return redirect()->to('admin/users')->with('error', [
                 'text' => 'ID de usuario inválido',
@@ -197,7 +202,6 @@ class UsersController extends BaseController
             ]);
         }
 
-        // Evitar que el usuario logeado se elimine a sí mismo
         if ($id == session()->get('user_id')) {
             return redirect()->to('admin/users')->with('error', [
                 'text' => 'No puedes eliminar tu propio usuario.',
@@ -205,7 +209,38 @@ class UsersController extends BaseController
             ]);
         }
 
-        // Como tienes useSoftDeletes = true en tu modelo, esto hará un borrado lógico (llenará deleted_at)
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            return redirect()->to('admin/users')->with('error', [
+                'text' => 'Usuario no encontrado',
+                'position' => 'center'
+            ]);
+        }
+
+        $docsAsLeader = $this->documentModel
+            ->where('reviewed_by', $id)
+            ->countAllResults();
+
+        $assignmentsActive = $this->assignmentModel
+            ->where('assigned_to', $id)
+            ->whereNotIn('status', ['cancelada'])
+            ->countAllResults();
+
+        if ($docsAsLeader > 0 || $assignmentsActive > 0) {
+            $messages = [];
+            if ($docsAsLeader > 0) {
+                $messages[] = "{$docsAsLeader} documento(s) donde aparece como director";
+            }
+            if ($assignmentsActive > 0) {
+                $messages[] = "{$assignmentsActive} asignación(es) donde aparece como líder";
+            }
+
+            return redirect()->to('admin/users')->with('error', [
+                'text' => 'No se puede eliminar el usuario. Hay ' . implode(' y ', $messages) . '.',
+                'position' => 'center'
+            ]);
+        }
+
         $this->userModel->delete($id);
 
         return redirect()->to('admin/users')->with('success', [
