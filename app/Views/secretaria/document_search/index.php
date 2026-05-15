@@ -14,12 +14,12 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <form id="searchForm" class="row g-3">
-                        <div class="col-md-4">
+                    <form id="filterForm" class="row g-3">
+                        <div class="col-md-3">
                             <label class="form-label">Buscar</label>
                             <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Código, título, cliente...">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Estado</label>
                             <select class="form-select" id="status" name="status">
                                 <option value="">Todos</option>
@@ -32,6 +32,18 @@
                                 <option value="completado">Completado</option>
                             </select>
                         </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" id="category_id" name="category_id">
+                                <option value="">Todas las categorías</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Líder de Área</label>
+                            <select class="" id="lider_id" name="lider_id">
+                                <option value="">Todos los Líderes</option>
+                            </select>
+                        </div>
                         <div class="col-md-2">
                             <label class="form-label">Desde</label>
                             <input type="date" class="form-control" id="date_from" name="date_from">
@@ -39,11 +51,6 @@
                         <div class="col-md-2">
                             <label class="form-label">Hasta</label>
                             <input type="date" class="form-control" id="date_to" name="date_to">
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100" id="btnSearch">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
                         </div>
                     </form>
                 </div>
@@ -56,9 +63,8 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Resultados</h5>
-                    <span class="badge bg-primary" id="resultCount">0 documentos</span>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive py-3">
                     <table class="table text-nowrap mb-0 table-centered table-hover" id="searchResultsTable">
                         <thead class="table-light">
                             <tr>
@@ -66,18 +72,11 @@
                                 <th>Cliente</th>
                                 <th>Título</th>
                                 <th>Estado</th>
+                                <th>Líder Asignado</th>
                                 <th>Fecha de Ingreso</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="searchResultsBody">
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-5">
-                                    <i class="fa-solid fa-magnifying-glass fa-2x mb-3 d-block"></i>
-                                    Ingresa criterios de búsqueda y presiona buscar
-                                </td>
-                            </tr>
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -90,91 +89,200 @@
 <?= $this->section('scripts') ?>
 
 <script>
-document.getElementById('searchForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    performSearch();
+let searchTable;
+let liderSelect;
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadCategories();
+    await initLiderSelect();
+    initDataTable();
 });
 
-function performSearch() {
+async function loadCategories() {
+    try {
+        const response = await fetch('<?= base_url('secretaria/document-search/get-categories') ?>');
+        const data = await response.json();
+        const select = document.getElementById('category_id');
+
+        if (Array.isArray(data)) {
+            data.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.text = cat.name;
+                select.add(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando categorías:', error);
+    }
+}
+
+async function initLiderSelect() {
+    liderSelect = new TomSelect('#lider_id', {
+        create: false,
+        sortField: { field: 'text', direction: 'asc' },
+        placeholder: 'Todos los Líderes',
+        allowEmpty: true,
+        onChange: function(value) {
+            searchTable.ajax.url(buildUrl()).load();
+        }
+    });
+
+    await loadLideres('');
+}
+
+async function loadLideres(categoryId) {
+    try {
+        const params = new URLSearchParams();
+        if (categoryId) {
+            params.append('category_id', categoryId);
+        }
+
+        const response = await fetch('<?= base_url('secretaria/document-search/get-lideres') ?>?' + params.toString());
+        const data = await response.json();
+
+        liderSelect.clearOptions();
+
+        if (Array.isArray(data)) {
+            data.forEach(lider => {
+                const text = lider.category_name
+                    ? `${lider.name} (${lider.category_name})`
+                    : lider.name;
+                liderSelect.addOption({ value: lider.id, text: text });
+            });
+        }
+    } catch (error) {
+        console.error('Error cargando líderes:', error);
+    }
+}
+
+document.getElementById('category_id').addEventListener('change', async function() {
+    const categoryId = this.value;
+    await loadLideres(categoryId);
+    searchTable.ajax.url(buildUrl()).load();
+});
+
+document.getElementById('keyword').addEventListener('input', debounce(function() {
+    searchTable.ajax.url(buildUrl()).load();
+}, 400));
+document.getElementById('status').addEventListener('change', function() {
+    searchTable.ajax.url(buildUrl()).load();
+});
+document.getElementById('lider_id').addEventListener('change', function() {
+    searchTable.ajax.url(buildUrl()).load();
+});
+document.getElementById('date_from').addEventListener('change', function() {
+    searchTable.ajax.url(buildUrl()).load();
+});
+document.getElementById('date_to').addEventListener('change', function() {
+    searchTable.ajax.url(buildUrl()).load();
+});
+
+function buildUrl() {
     const keyword = document.getElementById('keyword').value;
     const status = document.getElementById('status').value;
+    const categoryId = document.getElementById('category_id').value;
+    const liderId = document.getElementById('lider_id').value;
     const dateFrom = document.getElementById('date_from').value;
     const dateTo = document.getElementById('date_to').value;
-
-    const btnSearch = document.getElementById('btnSearch');
-    btnSearch.disabled = true;
-    btnSearch.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
     const params = new URLSearchParams({
         keyword: keyword,
         status: status,
+        lider_id: liderId,
         date_from: dateFrom,
         date_to: dateTo
     });
 
-    fetch('<?= base_url('secretaria/document-search/search') ?>?' + params.toString())
-        .then(response => response.json())
-        .then(data => {
-            renderResults(data.data);
-            document.getElementById('resultCount').textContent = data.count + ' documento' + (data.count !== 1 ? 's' : '');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Ocurrió un error al realizar la búsqueda.'
-            });
-        })
-        .finally(() => {
-            btnSearch.disabled = false;
-            btnSearch.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
-        });
+    return '<?= base_url('secretaria/document-search/data') ?>?' + params.toString();
 }
 
-function renderResults(documents) {
-    const tbody = document.getElementById('searchResultsBody');
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
-    if (documents.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center text-muted py-5">
-                    <i class="fa-solid fa-inbox fa-2x mb-3 d-block"></i>
-                    No se encontraron documentos con los criterios especificados
-                </td>
-            </tr>
-        `;
-        return;
-    }
+function initDataTable() {
+    searchTable = new DataTable('#searchResultsTable', {
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: buildUrl(),
+            type: 'GET',
+            error: function(xhr, error, thrown) {
+                console.error('DataTables error:', thrown);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos'
+                });
+            }
+        },
+        columns: [
+            { data: 'document_code', name: 'd.document_code', render: function(data) {
+                return `<span class="fw-semibold">${data || ''}</span>`;
+            }},
+            { data: 'client_full_name', name: 'client_full_name', render: function(data) {
+                return data || 'N/A';
+            }},
+            { data: 'title', name: 'd.title', render: function(data) {
+                return `<div class="text-truncate" style="max-width: 250px;" title="${escapeHtml(data || '')}">${escapeHtml(data || '')}</div>`;
+            }},
+            { data: 'status', name: 'd.status', render: function(data) {
+                return getStatusBadge(data);
+            }},
+            { data: 'lider_name', name: 'lider_name', render: function(data) {
+                return data || '<span class="text-muted">Sin asignar</span>';
+            }},
+            { data: 'created_at', name: 'd.created_at', render: function(data) {
+                if (!data) return 'N/A';
+                const date = new Date(data);
+                return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }},
+            { data: 'id', searchable: false, orderable: false, render: function(data, type, row) {
+                let buttons = `<a href="<?= base_url('secretaria/document-search/view-flow/') ?>${data}" class="btn btn-outline-primary btn-sm" title="Ver Flujo">
+                    <i class="fa-solid fa-eye"></i>
+                </a>`;
 
-    tbody.innerHTML = documents.map(doc => `
-        <tr>
-            <td><span class="fw-semibold">${escapeHtml(doc.document_code)}</span></td>
-            <td>${escapeHtml(doc.client_full_name || 'N/A')}</td>
-            <td>
-                <div class="text-truncate" style="max-width: 250px;" title="${escapeHtml(doc.title)}">
-                    ${escapeHtml(doc.title)}
-                </div>
-            </td>
-            <td>${doc.status_badge || getStatusBadge(doc.status)}</td>
-            <td>${formatDate(doc.created_at)}</td>
-            <td>
-                <div class="dropdown">
-                    <button class="btn btn-white" type="button" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-ellipsis-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" href="<?= base_url('secretaria/documents/download/') ?>${doc.id}" target="_blank">
-                                <i class="fa-solid fa-download text-primary me-2"></i>
-                                Descargar
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </td>
-        </tr>
-    `).join('');
+                if (row.assignment_id) {
+                    buttons += `<a href="<?= base_url('secretaria/documents/download/') ?>${data}" class="btn btn-outline-secondary btn-sm" title="Descargar" target="_blank">
+                        <i class="fa-solid fa-download"></i>
+                    </a>`;
+                }
+
+                return buttons;
+            }}
+        ],
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json',
+        },
+        scrollX: true,
+        order: [[5, 'desc']],
+        layout: {
+            topStart: {
+                buttons: [
+                    'pageLength',
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fa-solid fa-file-excel"></i> Excel',
+                        className: 'btn btn-success text-white'
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="fa-solid fa-file-pdf"></i> PDF',
+                        className: 'btn btn-danger text-white'
+                    }
+                ]
+            }
+        }
+    });
 }
 
 function getStatusBadge(status) {
@@ -188,7 +296,7 @@ function getStatusBadge(status) {
         'completado': 'bg-success text-white'
     };
     const badgeClass = classes[status] || 'bg-secondary-subtle text-secondary-emphasis';
-    const label = status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+    const label = status ? status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ') : '';
     return `<span class="badge ${badgeClass}">${label}</span>`;
 }
 
@@ -197,12 +305,6 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-}
-
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
 }
 </script>
 

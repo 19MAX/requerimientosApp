@@ -73,6 +73,10 @@ $routes->group('secretaria', ['filter' => ['auth', 'role:secretaria']], function
 
     $routes->get('document-search', 'Secretaria\DocumentSearchController::index');
     $routes->get('document-search/search', 'Secretaria\DocumentSearchController::search');
+    $routes->get('document-search/data', 'Secretaria\DocumentSearchController::data');
+    $routes->get('document-search/get-lideres', 'Secretaria\DocumentSearchController::getLideres');
+    $routes->get('document-search/get-categories', 'Secretaria\DocumentSearchController::getCategories');
+    $routes->get('document-search/view-flow/(:num)', 'Secretaria\DocumentSearchController::viewFlow/$1');
 });
 
 // Rutas de DIRECTOR
