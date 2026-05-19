@@ -8,7 +8,7 @@
         <div class="row mb-8">
             <div class="col-xl-4 offset-xl-4 col-md-12 col-12">
                 <div class="text-center">
-                    <a href="../../index.html"
+                    <a href="<?=base_url("/")?>"
                         class="fs-2 fw-bold d-flex align-items-center gap-2 justify-content-center mb-6">
                         <?php if (!empty($global_settings['site_logo'])): ?>
                             <img src="<?= base_url('uploads/logos/' . esc($global_settings['site_logo'])) ?>"
