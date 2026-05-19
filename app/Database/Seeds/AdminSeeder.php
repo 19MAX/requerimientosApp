@@ -21,8 +21,8 @@ class AdminSeeder extends Seeder
         $userModel->insert([
             'role_id'   => $role->id,
             'name'      => 'Administrador del Sistema',
-            'email'     => 'admin@admin.com',
-            'password'  => 'password',
+            'email'     => env('SEEDER_ADMIN_EMAIL'),
+            'password'  => env('SEEDER_ADMIN_PASSWORD'),
             'phone'     => '0999999999',
             'is_active' => 1
         ]);
