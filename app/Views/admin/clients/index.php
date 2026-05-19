@@ -129,7 +129,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Teléfono <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="phone" required>
+                            <input type="text" class="form-control phone-input" name="phone" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Dirección</label>
@@ -179,7 +179,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" name="phone" id="edit_phone" required>
+                            <input type="text" class="form-control phone-input" name="phone" id="edit_phone" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Dirección</label>

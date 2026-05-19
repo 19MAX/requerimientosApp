@@ -40,7 +40,7 @@
 
                         <div class="mb-4">
                             <label for="phone" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="phone" name="phone"
+                            <input type="text" class="form-control phone-input" id="phone" name="phone"
                                 value="<?= set_value('phone', $user['phone'] ?? '') ?>">
                         </div>
 

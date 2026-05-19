@@ -138,7 +138,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" name="phone">
+                            <input type="text" class="form-control phone-input" name="phone">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Rol del Sistema <span class="text-danger">*</span></label>
@@ -198,7 +198,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" name="phone" id="edit_phone">
+                            <input type="text" class="form-control phone-input" name="phone" id="edit_phone">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Rol del Sistema</label>

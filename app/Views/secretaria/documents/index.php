@@ -349,7 +349,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" name="phone" placeholder="Ej: 0999999999">
+                            <input type="text" class="form-control phone-input" name="phone" placeholder="Ej: 0999999999">
                         </div>
                     </div>
                     <div class="mb-3">

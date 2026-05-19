@@ -35,10 +35,18 @@
     function limitarCedula(input) {
         input.value = input.value.replace(/\D/g, '').slice(0, 10);
     }
+    function limitarTelefono(input) {
+        input.value = input.value.replace(/\D/g, '').slice(0, 10);
+    }
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.cedula-input').forEach(function(input) {
             input.addEventListener('input', function() {
                 limitarCedula(this);
+            });
+        });
+        document.querySelectorAll('.phone-input').forEach(function(input) {
+            input.addEventListener('input', function() {
+                limitarTelefono(this);
             });
         });
     });
