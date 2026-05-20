@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\LeaderCategoryModel;
 
+/*  Controlador de lideres - Opcional, solo si decides implementar categorías de líderes. Si no lo necesitas, puedes eliminar este controlador y las rutas relacionadas.
 class LeaderCategoriesController extends BaseController
 {
     protected $categoryModel;
@@ -105,3 +106,4 @@ class LeaderCategoriesController extends BaseController
         ]);
     }
 }
+*/

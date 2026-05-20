@@ -6,6 +6,9 @@ use App\Controllers\BaseController;
 use App\Models\ClientsModel;
 use App\Models\RolesModel;
 
+/*
+Controlador para gestión de clientes en el área de ADMINISTRADOR.
+
 class ClientsController extends BaseController
 {
     protected $clientsModel;
@@ -107,3 +110,4 @@ class ClientsController extends BaseController
     // }
 
 }
+ */

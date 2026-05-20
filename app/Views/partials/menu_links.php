@@ -2,8 +2,7 @@
 <ul class="navbar-nav flex-column">
 
     <li class="nav-item">
-        <a class="nav-link"
-            href="<?= base_url($role === 'lider_area' ? 'lider' : $role) ?>">
+        <a class="nav-link" href="<?= base_url($role === 'lider_area' ? 'lider' : $role) ?>">
             <span class="nav-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -41,6 +40,9 @@
                 <span class="text">Gestión de Usuarios</span>
             </a>
         </li>
+        <!----------------------------------------------------------------------------
+         LIDERES DE ÁREA Y CATEGORÍAS DE LÍDERES SON OPCIONALES, SI NO LOS VAS A IMPLEMENTAR PUEDES ELIMINAR ESTE BLOQUE DE CÓDIGOS Y LAS RUTAS/CONTROLADOR RELACIONADOS
+         ----------------------------------------------------------------------------
         <li class="nav-item">
             <a class="nav-link" href="<?= base_url('admin/leader-categories') ?>">
                 <span class="nav-icon">
@@ -77,6 +79,10 @@
                 <span class="text">Gestión de Clientes</span>
             </a>
         </li>
+        ----------------------------------------------------------------------------
+        Fin de bloque opcional --- IGNORE ---
+        ---------------------------------------------------------------------------->
+
         <!-- <li class="nav-item">
             <a class="nav-link" href="<?= base_url('admin/audit/documents') ?>">
                 <span class="nav-icon">
