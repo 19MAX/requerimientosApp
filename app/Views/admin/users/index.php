@@ -84,7 +84,7 @@
                                                     <path d="M13.5 6.5l4 4"></path>
                                                 </svg>
                                             </button>
-                                            <button type="button" class="btn btn-white btn-sm"
+                                            <!-- <button type="button" class="btn btn-white btn-sm"
                                                 onclick="openDeleteModal(<?= $user['id'] ?>, '<?= esc($user['name']) ?>')">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -97,7 +97,7 @@
                                                     <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
                                                     <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                                                 </svg>
-                                            </button>
+                                            </button> -->
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -242,7 +242,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+<!-- <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
             <div class="modal-body text-center p-5">
@@ -271,7 +271,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <?= $this->endSection() ?>
 
@@ -315,12 +315,12 @@
         editModal.show();
     }
 
-    function openDeleteModal(id, name) {
-        document.getElementById('delete_user_id').value = id;
-        document.getElementById('delete_user_name').innerText = name;
+    // function openDeleteModal(id, name) {
+    //     document.getElementById('delete_user_id').value = id;
+    //     document.getElementById('delete_user_name').innerText = name;
 
-        var deleteModal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
-        deleteModal.show();
-    }
+    //     var deleteModal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+    //     deleteModal.show();
+    // }
 </script>
 <?= $this->endSection() ?>

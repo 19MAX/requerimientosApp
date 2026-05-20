@@ -82,24 +82,24 @@ class ClientsController extends BaseController
         }
     }
 
-    public function delete()
-    {
-        $id = $this->request->getPost('id');
+    // public function delete()
+    // {
+    //     $id = $this->request->getPost('id');
 
-        // Validación básica de seguridad
-        if (!$id || !is_numeric($id)) {
-            return redirect()->to('secretaria/clients')->with('error', [
-                'text' => 'ID de cliente inválido',
-                'position' => 'center'
-            ]);
-        }
+    //     // Validación básica de seguridad
+    //     if (!$id || !is_numeric($id)) {
+    //         return redirect()->to('secretaria/clients')->with('error', [
+    //             'text' => 'ID de cliente inválido',
+    //             'position' => 'center'
+    //         ]);
+    //     }
 
-        $this->clientsModel->delete($id);
+    //     $this->clientsModel->delete($id);
 
-        return redirect()->to('secretaria/clients')->with('success', [
-            'text' => 'Cliente eliminado correctamente',
-            'position' => 'top-end'
-        ]);
-    }
+    //     return redirect()->to('secretaria/clients')->with('success', [
+    //         'text' => 'Cliente eliminado correctamente',
+    //         'position' => 'top-end'
+    //     ]);
+    // }
 
 }

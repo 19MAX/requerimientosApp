@@ -191,61 +191,61 @@ class UsersController extends BaseController
         }
     }
 
-    public function delete()
-    {
-        $id = $this->request->getPost('id');
+    // public function delete()
+    // {
+    //     $id = $this->request->getPost('id');
 
-        if (!$id || !is_numeric($id)) {
-            return redirect()->to('admin/users')->with('error', [
-                'text' => 'ID de usuario inválido',
-                'position' => 'center'
-            ]);
-        }
+    //     if (!$id || !is_numeric($id)) {
+    //         return redirect()->to('admin/users')->with('error', [
+    //             'text' => 'ID de usuario inválido',
+    //             'position' => 'center'
+    //         ]);
+    //     }
 
-        if ($id == session()->get('user_id')) {
-            return redirect()->to('admin/users')->with('error', [
-                'text' => 'No puedes eliminar tu propio usuario.',
-                'position' => 'center'
-            ]);
-        }
+    //     if ($id == session()->get('user_id')) {
+    //         return redirect()->to('admin/users')->with('error', [
+    //             'text' => 'No puedes eliminar tu propio usuario.',
+    //             'position' => 'center'
+    //         ]);
+    //     }
 
-        $user = $this->userModel->find($id);
-        if (!$user) {
-            return redirect()->to('admin/users')->with('error', [
-                'text' => 'Usuario no encontrado',
-                'position' => 'center'
-            ]);
-        }
+    //     $user = $this->userModel->find($id);
+    //     if (!$user) {
+    //         return redirect()->to('admin/users')->with('error', [
+    //             'text' => 'Usuario no encontrado',
+    //             'position' => 'center'
+    //         ]);
+    //     }
 
-        $docsAsLeader = $this->documentModel
-            ->where('reviewed_by', $id)
-            ->countAllResults();
+    //     $docsAsLeader = $this->documentModel
+    //         ->where('reviewed_by', $id)
+    //         ->countAllResults();
 
-        $assignmentsActive = $this->assignmentModel
-            ->where('assigned_to', $id)
-            ->whereNotIn('status', ['cancelada'])
-            ->countAllResults();
+    //     $assignmentsActive = $this->assignmentModel
+    //         ->where('assigned_to', $id)
+    //         ->whereNotIn('status', ['cancelada'])
+    //         ->countAllResults();
 
-        if ($docsAsLeader > 0 || $assignmentsActive > 0) {
-            $messages = [];
-            if ($docsAsLeader > 0) {
-                $messages[] = "{$docsAsLeader} documento(s) donde aparece como director";
-            }
-            if ($assignmentsActive > 0) {
-                $messages[] = "{$assignmentsActive} asignación(es) donde aparece como líder";
-            }
+    //     if ($docsAsLeader > 0 || $assignmentsActive > 0) {
+    //         $messages = [];
+    //         if ($docsAsLeader > 0) {
+    //             $messages[] = "{$docsAsLeader} documento(s) donde aparece como director";
+    //         }
+    //         if ($assignmentsActive > 0) {
+    //             $messages[] = "{$assignmentsActive} asignación(es) donde aparece como líder";
+    //         }
 
-            return redirect()->to('admin/users')->with('error', [
-                'text' => 'No se puede eliminar el usuario. Hay ' . implode(' y ', $messages) . '.',
-                'position' => 'center'
-            ]);
-        }
+    //         return redirect()->to('admin/users')->with('error', [
+    //             'text' => 'No se puede eliminar el usuario. Hay ' . implode(' y ', $messages) . '.',
+    //             'position' => 'center'
+    //         ]);
+    //     }
 
-        $this->userModel->delete($id);
+    //     $this->userModel->delete($id);
 
-        return redirect()->to('admin/users')->with('success', [
-            'text' => 'Usuario eliminado correctamente',
-            'position' => 'top-end'
-        ]);
-    }
+    //     return redirect()->to('admin/users')->with('success', [
+    //         'text' => 'Usuario eliminado correctamente',
+    //         'position' => 'top-end'
+    //     ]);
+    // }
 }

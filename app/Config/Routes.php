@@ -27,7 +27,7 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
     $routes->get('users', 'Admin\UsersController::index');
     $routes->post('users/create', 'Admin\UsersController::create');
     $routes->post('users/update', 'Admin\UsersController::update');
-    $routes->post('users/delete', 'Admin\UsersController::delete');
+    // $routes->post('users/delete', 'Admin\UsersController::delete');
 
     $routes->get('leader-categories', 'Admin\LeaderCategoriesController::index');
     $routes->post('leader-categories/create', 'Admin\LeaderCategoriesController::create');
@@ -38,7 +38,7 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
         $routes->get('/', 'Admin\ClientsController::index');
         $routes->post('create', 'Admin\ClientsController::create');
         $routes->post('update', 'Admin\ClientsController::update');
-        $routes->post('delete', 'Admin\ClientsController::delete');
+        // $routes->post('delete', 'Admin\ClientsController::delete');
     });
     // $routes->get('audit', 'Admin\AuditController::index');
     // $routes->get('audit/assignments', 'Admin\AuditController::assignmentStatus');
@@ -56,7 +56,7 @@ $routes->group('secretaria', ['filter' => ['auth', 'role:secretaria']], function
         $routes->get('/', 'Secretaria\ClientsController::index');
         $routes->post('create', 'Secretaria\ClientsController::create');
         $routes->post('update', 'Secretaria\ClientsController::update');
-        $routes->post('delete', 'Secretaria\ClientsController::delete');
+        // $routes->post('delete', 'Secretaria\ClientsController::delete');
     });
 
     $routes->get('documents', 'Secretaria\DocumentsController::index');
