@@ -65,6 +65,8 @@ $routes->group('secretaria', ['filter' => ['auth', 'role:secretaria']], function
     $routes->post('documents/create', 'Secretaria\DocumentsController::create');
     $routes->post('documents/update', 'Secretaria\DocumentsController::update');
     $routes->post('documents/delete', 'Secretaria\DocumentsController::delete');
+    $routes->get('documents/assign-director', 'Secretaria\DocumentsController::assignDirector');
+    $routes->post('documents/assign-director/save', 'Secretaria\DocumentsController::saveDirectorAssignment');
 
     // Ruta para descargar el archivo (la usaremos en la vista)
     $routes->get('documents/download/(:num)', 'Secretaria\DocumentsController::download/$1');

@@ -66,10 +66,6 @@ class DocumentsController extends BaseController
                     'label' => 'Descripción',
                     'rules' => 'permit_empty|max_length[1000]',
                 ],
-                'director_id' => [
-                    'label' => 'Director',
-                    'rules' => 'permit_empty|integer|is_not_unique[users.id]',
-                ],
                 'document_file' => [
                     'label' => 'Archivo',
                     'rules' => 'uploaded[document_file]|max_size[document_file,5120]|ext_in[document_file,pdf,doc,docx]',
@@ -109,7 +105,6 @@ class DocumentsController extends BaseController
                 'client_id' => $this->request->getPost('client_id'),
                 'title' => $this->request->getPost('title'),
                 'description' => $this->request->getPost('description'),
-                'director_id' => $this->request->getPost('director_id') ?: null,
                 'file_path' => $fileData['file_path'],
                 'file_name' => $fileData['file_name'],
                 'file_size' => $fileData['file_size'],
@@ -155,16 +150,6 @@ class DocumentsController extends BaseController
                 \App\Services\EmailService::notifyDocumentRegistration($documentId);
             } catch (\Throwable $e) {
                 log_message('error', '[EmailService] Falló el envío de correo de registro inicial. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
-            }
-
-            // Notificar al director si fue asignado
-            $assignedDirectorId = $this->request->getPost('director_id');
-            if ($assignedDirectorId) {
-                try {
-                    \App\Services\EmailService::notifyDirectorAssignment($documentId, $assignedDirectorId);
-                } catch (\Throwable $e) {
-                    log_message('error', '[EmailService] Falló el envío de correo de asignación a director. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
-                }
             }
 
             return redirect()->to('secretaria/documents')->with('success', [
@@ -263,10 +248,6 @@ class DocumentsController extends BaseController
                 ],
                 'title' => ['label' => 'Título', 'rules' => 'required|max_length[200]'],
                 'description' => ['label' => 'Descripción', 'rules' => 'permit_empty|max_length[1000]'],
-                'director_id' => [
-                    'label' => 'Director',
-                    'rules' => 'permit_empty|integer|is_not_unique[users.id]',
-                ],
             ];
 
             $file = $this->request->getFile('document_file');
@@ -287,7 +268,6 @@ class DocumentsController extends BaseController
                 'client_id' => $this->request->getPost('client_id'),
                 'title' => $this->request->getPost('title'),
                 'description' => $this->request->getPost('description'),
-                'director_id' => $this->request->getPost('director_id') ?: null,
             ];
 
             // ── PASO 1: Subir nuevo archivo si fue seleccionado ──────────
@@ -334,17 +314,6 @@ class DocumentsController extends BaseController
             // ── PASO 4: DB exitosa → ahora sí eliminar el archivo anterior
             if ($oldFilePath) {
                 deleteDocument($oldFilePath);
-            }
-
-            // Notificar al nuevo director si fue asignado o cambiado
-            $newDirectorId = $this->request->getPost('director_id');
-            $oldDirectorId = $document['director_id'] ?? null;
-            if ($newDirectorId && $newDirectorId != $oldDirectorId) {
-                try {
-                    \App\Services\EmailService::notifyDirectorAssignment($id, $newDirectorId);
-                } catch (\Throwable $e) {
-                    log_message('error', '[EmailService] Falló el envío de correo de asignación a director. DocID: ' . $id . '. Error: ' . $e->getMessage());
-                }
             }
 
             return redirect()->to('secretaria/documents')->with('success', [
@@ -438,6 +407,112 @@ class DocumentsController extends BaseController
         }
 
         return $this->response->download($filePath, null)->setFileName($document['file_name']);
+    }
+
+    public function assignDirector()
+    {
+        $documentsWithoutDirector = $this->db->table('documents d')
+            ->select('
+                d.*,
+                CONCAT(c.first_name, " ", c.last_name) AS client_full_name,
+                d2.name    AS director_name,
+                d2.email   AS director_email
+            ')
+            ->join('clients c', 'c.id = d.client_id', 'left')
+            ->join('users d2', 'd2.id = d.director_id', 'left')
+            ->where('d.deleted_at', null)
+            ->where('d.director_id', null)
+            ->whereIn('d.status', ['pendiente', 'en_revision'])
+            ->orderBy('d.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $directors = $this->usersModel->getDirectors();
+
+        return view('secretaria/documents/assign_director', [
+            'documents' => $documentsWithoutDirector,
+            'directors' => $directors,
+        ]);
+    }
+
+    public function saveDirectorAssignment()
+    {
+        $documentId = $this->request->getPost('document_id');
+        $directorId = $this->request->getPost('director_id');
+
+        $document = $this->documentModel->find($documentId);
+
+        if (!$document) {
+            return redirect()->back()->with('error', [
+                'text' => 'Documento no encontrado.',
+                'position' => 'center',
+            ]);
+        }
+
+        if ($document['director_id']) {
+            return redirect()->to('secretaria/documents/assign-director')->with('error', [
+                'text' => 'Este documento ya tiene un director asignado.',
+                'position' => 'center',
+            ]);
+        }
+
+        $rules = [
+            'document_id' => [
+                'label' => 'Documento',
+                'rules' => 'required|integer|is_not_unique[documents.id]',
+            ],
+            'director_id' => [
+                'label' => 'Director',
+                'rules' => 'required|integer|is_not_unique[users.id]',
+            ],
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', [
+                'text' => implode('<br>', $this->validator->getErrors()),
+                'position' => 'center',
+            ]);
+        }
+
+        $this->db->transStart();
+
+        $this->documentModel->update($documentId, [
+            'director_id' => $directorId,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $userName = session()->get('name');
+
+        audit_log(
+            action: AuditActions::DOCUMENT_UPDATED,
+            entityType: 'documents',
+            entityId: $documentId,
+            newStatus: $document['status'],
+            newValues: [
+                'director_id' => $directorId,
+            ],
+            description: "Secretaria '{$userName}' asignó director al documento {$document['document_code']}"
+        );
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            return redirect()->back()->withInput()->with('error', [
+                'text' => 'Error al asignar el director en la base de datos.',
+                'position' => 'center',
+            ]);
+        }
+
+        try {
+            \App\Services\EmailService::notifyDirectorAssignment($documentId, $directorId);
+        } catch (\Throwable $e) {
+            log_message('error', '[EmailService] Falló el envío de correo de asignación a director. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
+        }
+
+        return redirect()->to('secretaria/documents/assign-director')->with('success', [
+            'text' => 'Director asignado correctamente.',
+            'position' => 'top-end',
+        ]);
     }
 
     public function search(): \CodeIgniter\HTTP\ResponseInterface
