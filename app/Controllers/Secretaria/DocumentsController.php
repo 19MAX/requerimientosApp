@@ -254,7 +254,7 @@ class DocumentsController extends BaseController
             $newFileUploaded = $file && $file->isValid() && !$file->hasMoved();
 
             if ($newFileUploaded) {
-                $rules['document_file'] = 'max_size[document_file,5120]|ext_in[document_file,pdf,doc,docx]';
+                $rules['document_file'] = 'max_size[document_file,5120]|ext_in[document_file,pdf]';
             }
 
             if (!$this->validate($rules)) {

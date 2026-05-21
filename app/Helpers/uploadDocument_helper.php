@@ -13,6 +13,11 @@ if (!function_exists('uploadDocument')) {
 
         try {
             if ($file->isValid() && !$file->hasMoved()) {
+                $allowedMime = ['application/pdf'];
+                if (!in_array($file->getMimeType(), $allowedMime)) {
+                    log_message('error', '[uploadDocument] Tipo MIME no permitido: ' . $file->getMimeType());
+                    return false;
+                }
 
                 // ✅ Capturar TODOS los datos ANTES de mover el archivo
                 $clientName = $file->getClientName();

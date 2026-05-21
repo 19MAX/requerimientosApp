@@ -126,7 +126,7 @@ class MyAssignmentsController extends BaseController
                 'assignment_id' => 'required|integer',
                 'document_id'   => 'required|integer',
                 'comment'       => 'required',
-                'report_file'   => 'max_size[report_file,5120]|ext_in[report_file,pdf,doc,docx,jpg,jpeg,png]'
+                'report_file'   => 'max_size[report_file,5120]|ext_in[report_file,pdf]'
             ];
 
             if (!$this->validate($rules)) {

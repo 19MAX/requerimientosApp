@@ -274,7 +274,7 @@
                                     class="text-danger">*</span></label>
 
                             <div class="dropzone-area" id="createDropzone">
-                                <input type="file" name="document_file" id="createFileInput" accept=".pdf,.doc,.docx"
+                                <input type="file" name="document_file" id="createFileInput" accept=".pdf"
                                     required
                                     style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -410,7 +410,7 @@
                         </div>
 
                         <div class="dropzone-area" id="editDropzone">
-                            <input type="file" name="document_file" id="editFileInput" accept=".pdf,.doc,.docx"
+                            <input type="file" name="document_file" id="editFileInput" accept=".pdf"
                                 style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
