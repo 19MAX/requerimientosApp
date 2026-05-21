@@ -116,6 +116,13 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <?php if (!empty($pendingReturns)): ?>
+                            <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <span>Tienes <strong><?= count($pendingReturns) ?></strong> devolución(es) pendiente(s) de respuesta del director.</span>
+                            </div>
+                            <?php endif; ?>
+
                             <?php if (!empty($assignments)): ?>
                                 <?php foreach ($assignments as $task): ?>
                                     <tr>
@@ -193,6 +200,16 @@
                                                 </a>
 
                                                 <?php if ($task['status'] === 'pendiente'): ?>
+                                                    <button type="button" class="btn btn-warning btn-sm"
+                                                        onclick="openReturnModal(<?= $task['id'] ?>, '<?= htmlspecialchars($task['document_code'] ?? '', ENT_QUOTES) ?>')"
+                                                        title="Devolver al Director">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-back-up">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                            <path d="M9 14l-4 -4l4 -4"/>
+                                                            <path d="M5 10h11a4 4 0 0 1 0 8h-1"/>
+                                                        </svg>
+                                                    </button>
+
                                                     <form action="<?= base_url('lider/my-assignments/start') ?>" method="POST"
                                                         class="d-inline">
                                                         <input type="hidden" name="assignment_id" value="<?= $task['id'] ?>">
@@ -337,6 +354,42 @@
     </div>
 </div>
 
+<div class="modal fade" id="returnTaskModal" tabindex="-1" aria-labelledby="returnTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnTaskModalLabel">Devolver Documento al Director</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= base_url('lider/my-assignments/return') ?>" method="POST">
+                <input type="hidden" name="assignment_id" id="return_assignment_id">
+                <div class="modal-body">
+                    <div class="alert alert-warning bg-warning-subtle text-warning-emphasis border-0">
+                        <strong>Importante:</strong> Si el director se equivocó en la asignación, puede reasignar el documento a otro líder o corregir la información.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nº de Trámite</label>
+                        <p class="fw-bold text-primary" id="return_doc_code"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Motivo de la Devolución <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="reason" id="return_reason" rows="3"
+                            placeholder="Ej: El documento no corresponde a mi área de trabajo, el archivo está corrupto, etc."
+                            required></textarea>
+                        <small class="text-muted">Describe el motivo por el cual devuelves este documento al director.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Devolver al Director</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -410,6 +463,15 @@
         document.getElementById('report_document_id').value = documentId;
 
         var modal = new bootstrap.Modal(document.getElementById('reportTaskModal'));
+        modal.show();
+    }
+
+    function openReturnModal(assignmentId, docCode) {
+        document.getElementById('return_assignment_id').value = assignmentId;
+        document.getElementById('return_doc_code').innerText = docCode || 'N/D';
+        document.getElementById('return_reason').value = '';
+
+        var modal = new bootstrap.Modal(document.getElementById('returnTaskModal'));
         modal.show();
     }
 </script>

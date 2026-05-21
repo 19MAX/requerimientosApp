@@ -92,7 +92,6 @@ $routes->group('director', ['filter' => ['auth', 'role:director']], function ($r
     $routes->post('review-documents/reassign', 'Director\DocumentController::reassign');
     //Busqueda de líderes de área para asignar tareas
     $routes->get('leaders/search', 'Director\DocumentController::searchLeaders');
-
 });
 
 // Rutas de LÍDER DE ÁREA
@@ -105,6 +104,7 @@ $routes->group('lider', ['filter' => ['auth', 'role:lider_area']], function ($ro
     // Procesamiento de acciones
     $routes->post('my-assignments/start', 'Lider\MyAssignmentsController::startTask');
     $routes->post('my-assignments/report', 'Lider\MyAssignmentsController::reportTask');
+    $routes->post('my-assignments/return', 'Lider\MyAssignmentsController::returnTask');
 
     $routes->get('document-search', 'Lider\DocumentSearchController::index');
     $routes->get('document-search/search', 'Lider\DocumentSearchController::search');

@@ -5,6 +5,7 @@ namespace App\Controllers\Director;
 use App\Controllers\BaseController;
 use App\Models\AssignmentModel;
 use App\Models\DocumentModel;
+use App\Models\AssignmentReturnModel;
 use App\Models\UsersModel;
 
 class DashboardController extends BaseController
@@ -12,6 +13,7 @@ class DashboardController extends BaseController
     protected $documentModel;
     protected $userModel;
     protected $assignmentModel;
+    protected $returnModel;
     protected $db;
 
     public function __construct()
@@ -19,13 +21,21 @@ class DashboardController extends BaseController
         $this->documentModel = new DocumentModel();
         $this->userModel = new UsersModel();
         $this->assignmentModel = new AssignmentModel();
+        $this->returnModel = new AssignmentReturnModel();
         $this->db = \Config\Database::connect();
         helper(['status', 'formatDate']);
     }
 
     public function index()
     {
-        // Métricas para el Director
+        $currentDirectorId = session()->get('user_id');
+
+        $pendingReturnsCount = $this->db->table('assignment_returns ar')
+            ->join('assignments a', 'a.id = ar.assignment_id')
+            ->where('ar.status', 'pendiente')
+            ->where('a.assigned_by', $currentDirectorId)
+            ->countAllResults();
+
         $stats = [
             'total_documents' => $this->documentModel->countAllResults(),
             'pending_review' => $this->documentModel->whereIn('status', ['pendiente', 'en_revision'])->countAllResults(),
@@ -33,9 +43,9 @@ class DashboardController extends BaseController
             'in_execution' => $this->documentModel->where('status', 'asignado')->countAllResults(),
             'completed' => $this->documentModel->where('status', 'completado')->countAllResults(),
             'rejected' => $this->documentModel->where('status', 'rechazado')->countAllResults(),
+            'pending_returns' => $pendingReturnsCount,
         ];
 
-        // Últimos documentos
         $recentDocs = $this->documentModel->select('documents.*, users.name as creator_name')
             ->join('users', 'users.id = documents.created_by', 'left')
             ->orderBy('documents.created_at', 'DESC')

@@ -8,7 +8,9 @@
                 <h1 class="fs-3">👋 Hola <?= esc(session()->get('name')) ?>,</h1>
                 <p class="mb-0">¡Bienvenido al Panel de Dirección de CNEL!</p>
                 <p>Gestiona las revisiones de documentos y supervisa el progreso de las asignaciones.</p>
-                <a href="<?= base_url('director/review-documents') ?>" class="btn btn-dark mt-2">Revisar Documentos</a>
+                <div class="d-flex gap-3 flex-wrap mt-3">
+                    <a href="<?= base_url('director/review-documents') ?>" class="btn btn-dark">Revisar Documentos</a>
+                </div>
             </div>
         </div>
     </div>

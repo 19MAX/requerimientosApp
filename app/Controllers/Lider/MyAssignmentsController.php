@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ActivityReportModel;
 use App\Models\AssignmentModel;
 use App\Models\DocumentModel;
+use App\Models\AssignmentReturnModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class MyAssignmentsController extends BaseController
@@ -13,6 +14,7 @@ class MyAssignmentsController extends BaseController
     protected $assignmentModel;
     protected $documentModel;
     protected $reportModel;
+    protected $returnModel;
     protected $db;
 
     public function __construct()
@@ -20,6 +22,7 @@ class MyAssignmentsController extends BaseController
         $this->assignmentModel = new AssignmentModel();
         $this->documentModel = new DocumentModel();
         $this->reportModel = new ActivityReportModel();
+        $this->returnModel = new AssignmentReturnModel();
         $this->db = \Config\Database::connect();
         helper(['document', 'audit']);
     }
@@ -28,16 +31,20 @@ class MyAssignmentsController extends BaseController
     {
         $userId = session()->get('user_id');
 
-        // Obtener las asignaciones del usuario logeado con JOIN para traer info del doc y del director
         $assignments = $this->assignmentModel
             ->select('assignments.*, documents.document_code, documents.title as document_title, documents.file_path as doc_file_path, users.name as director_name, assignments.due_date, assignments.status as assignment_status')
             ->join('documents', 'documents.id = assignments.document_id')
             ->join('users', 'users.id = assignments.assigned_by')
             ->where('assignments.assigned_to', $userId)
+            ->whereNotIn('assignments.status', ['devuelto', 'cancelada'])
             ->orderBy('assignments.created_at', 'DESC')
             ->findAll();
 
-        // Estadísticas para el líder
+        $pendingReturns = $this->returnModel
+            ->where('returned_by', $userId)
+            ->where('status', 'pendiente')
+            ->findAll();
+
         $stats = [
             'total' => count($assignments),
             'pending' => $this->assignmentModel->where('assigned_to', $userId)->where('status', 'pendiente')->countAllResults(),
@@ -47,7 +54,8 @@ class MyAssignmentsController extends BaseController
 
         return view('lider/my_assignments/index', [
             'assignments' => $assignments,
-            'stats' => $stats
+            'stats' => $stats,
+            'pendingReturns' => $pendingReturns
         ]);
     }
 
@@ -263,5 +271,82 @@ class MyAssignmentsController extends BaseController
             'activityReport' => $activityReport,
             'auditLogs' => $auditLogs
         ]);
+    }
+
+    public function returnTask()
+    {
+        try {
+            $assignmentId = $this->request->getPost('assignment_id');
+            $reason = $this->request->getPost('reason');
+            $userId = session()->get('user_id');
+            $leaderName = session()->get('name') ?? 'Líder';
+
+            $assignment = $this->assignmentModel->find($assignmentId);
+
+            if (!$assignment || $assignment['assigned_to'] != $userId) {
+                return redirect()->to('lider/my-assignments')->with('error', 'Asignación no encontrada o no autorizada.');
+            }
+
+            if ($assignment['status'] !== 'pendiente') {
+                return redirect()->to('lider/my-assignments')->with('error', 'Solo puedes devolver asignaciones pendientes.');
+            }
+
+            $existingReturn = $this->returnModel
+                ->where('assignment_id', $assignmentId)
+                ->where('status', 'pendiente')
+                ->first();
+
+            if ($existingReturn) {
+                return redirect()->to('lider/my-assignments')->with('error', 'Ya existe una devolución pendiente para esta asignación.');
+            }
+
+            $document = $this->documentModel->find($assignment['document_id']);
+
+            $this->db->transStart();
+
+            $this->returnModel->insert([
+                'assignment_id' => $assignmentId,
+                'document_id' => $assignment['document_id'],
+                'returned_by' => $userId,
+                'reason' => $reason,
+                'status' => 'pendiente',
+            ]);
+
+            $oldAssignmentStatus = $assignment['status'];
+            $this->assignmentModel->update($assignmentId, [
+                'status' => 'devuelto',
+            ]);
+            audit_status_change(
+                entityType: 'assignments',
+                entityId: (int) $assignmentId,
+                oldStatus: $oldAssignmentStatus,
+                newStatus: 'devuelto',
+                description: "Líder '{$leaderName}' devolvió el documento al director. Motivo: {$reason}"
+            );
+
+            $oldDocumentStatus = $document['status'];
+            $this->documentModel->update($assignment['document_id'], [
+                'status' => 'pendiente',
+            ]);
+            audit_status_change(
+                entityType: 'documents',
+                entityId: (int) $assignment['document_id'],
+                oldStatus: $oldDocumentStatus,
+                newStatus: 'pendiente',
+                description: "Documento devuelto por líder '{$leaderName}' y regresado a pendiente para reasignación."
+            );
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return redirect()->to('lider/my-assignments')->with('error', 'No se pudo procesar la devolución.');
+            }
+
+            return redirect()->to('lider/my-assignments')->with('success', 'Documento devuelto al director. Podrá reasignarlo a otro líder.');
+
+        } catch (\Exception $e) {
+            log_message('error', '[MyAssignmentsController::returnTask] Error: ' . $e->getMessage());
+            return redirect()->to('lider/my-assignments')->with('error', 'Ocurrió un error al procesar la devolución.');
+        }
     }
 }
