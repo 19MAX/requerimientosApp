@@ -17,9 +17,9 @@
                             <img src="<?= base_url('dist/assets/images/brand/logo/logo-icon.svg') ?>" class="img-fluid"
                                 alt="Logo" style="max-height: 40px; width: auto;">
                         <?php endif; ?>
-                        <span><?= esc($global_settings['site_name'] ?? 'CNEL') ?></span>
+                        <span class="h6 text-primary"><?= esc($global_settings['site_name'] ?? 'CNEL') ?></span>
                     </a>
-                    <h1 class="mb-1">Bienvenido de nuevo</h1>
+                    <h1 class="mb-1 h3">Bienvenido</h1>
                     <!-- <p class="mb-0">
                         ¿No tienes una cuenta aún?
                         <a href="sign-up.html" class="text-primary">Regístrate aquí</a>

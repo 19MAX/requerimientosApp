@@ -45,6 +45,9 @@
           </span>
         </a>
       </div>
+      <span class="fw-bold fs-4 text-primary">
+          <?= esc($global_settings['site_name'] ?? 'CNEL') ?>
+      </span>
       <!-- Logo -->
       <!-- <div class="d-block d-md-none">
         <a href="./index.html">
