@@ -37,6 +37,7 @@ class DocumentsController extends BaseController
             ->join('clients c', 'c.id = d.client_id', 'left')
             ->join('users d2', 'd2.id = d.director_id', 'left')
             ->where('d.deleted_at', null)
+            ->where('d.director_id', null)
             ->orderBy('d.id', 'DESC')
             ->get()
             ->getResultArray();
@@ -509,7 +510,7 @@ class DocumentsController extends BaseController
             log_message('error', '[EmailService] Falló el envío de correo de asignación a director. DocID: ' . $documentId . '. Error: ' . $e->getMessage());
         }
 
-        return redirect()->to('secretaria/documents/assign-director')->with('success', [
+        return redirect()->to('secretaria/documents')->with('success', [
             'text' => 'Director asignado correctamente.',
             'position' => 'top-end',
         ]);
