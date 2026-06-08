@@ -238,8 +238,10 @@ function initDataTable() {
             { data: 'status', name: 'd.status', render: function(data) {
                 return getStatusBadge(data);
             }},
-            { data: 'lider_name', name: 'lider_name', render: function(data) {
-                return data || '<span class="text-muted">Sin asignar</span>';
+            { data: 'lider_name', name: 'lider_name', render: function(data, type, row) {
+                if (!data) return '<span class="text-muted">Sin asignar</span>';
+                if (row.leader_category_name) return data + ' <small class="text-primary"></br>' + row.leader_category_name + '</small>';
+                return data;
             }},
             { data: 'created_at', name: 'd.created_at', render: function(data) {
                 if (!data) return 'N/A';

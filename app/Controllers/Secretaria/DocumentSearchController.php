@@ -92,11 +92,13 @@ class DocumentSearchController extends BaseController
                 CONCAT(c.first_name, " ", c.last_name) AS client_full_name,
                 c.cedula AS client_cedula,
                 u.name AS lider_name,
+                lc.name AS leader_category_name,
                 a.id AS assignment_id
             ')
             ->join('clients c', 'c.id = d.client_id', 'left')
             ->join('assignments a', 'a.document_id = d.id', 'left')
             ->join('users u', 'u.id = a.assigned_to', 'left')
+            ->join('leader_categories lc', 'lc.id = u.leader_category_id', 'left')
             ->where('d.deleted_at', null);
 
         if ($searchValue !== '') {

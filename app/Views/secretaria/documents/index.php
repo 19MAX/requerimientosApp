@@ -105,6 +105,19 @@
   background: none !important;
   cursor: text;
 } */
+ .table-responsive,
+.card,
+.card-body,
+.dt-container,
+.dt-layout-table,
+.dt-scroll,
+.dt-scroll-body {
+    overflow: visible !important;
+}
+
+.dropdown-menu {
+    z-index: 99999 !important;
+}
 </style>
 <div class="custom-container">
     <div class="row mb-6 align-items-center">
