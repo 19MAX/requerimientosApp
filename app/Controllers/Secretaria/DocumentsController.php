@@ -11,6 +11,7 @@ class DocumentsController extends BaseController
 {
     protected $documentModel;
     protected $clientsModel;
+    protected $usersModel;
     protected $db;
 
     public function __construct()

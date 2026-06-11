@@ -290,7 +290,7 @@
     // ── DataTable ────────────────────────────────────────────────
     new DataTable('#directorTable', {
         language: { url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json' },
-        scrollX: true,
+        scrollX: false,
         layout: { topStart: { buttons: ['pageLength', 'excel', 'pdf'] } }
     });
 

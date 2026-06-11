@@ -105,19 +105,6 @@
   background: none !important;
   cursor: text;
 } */
- .table-responsive,
-.card,
-.card-body,
-.dt-container,
-.dt-layout-table,
-.dt-scroll,
-.dt-scroll-body {
-    overflow: visible !important;
-}
-
-.dropdown-menu {
-    z-index: 99999 !important;
-}
 </style>
 <div class="custom-container">
     <div class="row mb-6 align-items-center">
@@ -570,7 +557,7 @@
     // ── DataTable ────────────────────────────────────────────────
     new DataTable('#miTabla', {
         language: { url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json' },
-        scrollX: true,
+        scrollX: false,
         layout: { topStart: { buttons: ['pageLength', 'excel', 'pdf', 'colvis'] } }
     });
 
