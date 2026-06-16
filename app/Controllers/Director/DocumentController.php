@@ -719,19 +719,22 @@ class DocumentController extends BaseController
             ]);
         }
 
-        $clients = $this->usersModel
+        $leaders = $this->usersModel
+            ->select('users.id, users.name, users.email, lc.name as category_name')
+            ->join('leader_categories lc', 'lc.id = users.leader_category_id', 'left')
             ->groupStart()
-            ->like('name', $q, 'both')
-            ->orLike('email', $q, 'both')
+            ->like('users.name', $q, 'both')
+            ->orLike('users.email', $q, 'both')
+            ->orLike('lc.name', $q, 'both')
             ->groupEnd()
             ->where('role_id', 4)
             ->where('deleted_at', null)
-            ->findAll(10); // máximo 10 resultados
+            ->findAll(10);
 
         return $this->response->setJSON([
             'success' => true,
-            'count' => count($clients),
-            'data' => $clients,
+            'count' => count($leaders),
+            'data' => $leaders,
         ]);
     }
 }

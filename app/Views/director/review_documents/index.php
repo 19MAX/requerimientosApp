@@ -248,7 +248,7 @@
                                 <label class="form-label fw-bold">Nuevo Líder Responsable <span
                                         class="text-danger">*</span></label>
                                 <select id="select-leader-reassign" name="assigned_to"
-                                    placeholder="Buscar nuevo líder..."></select>
+                                    placeholder="Buscar líder por nombre o categoría..."></select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Nueva Fecha Límite <span
@@ -302,8 +302,8 @@
 
         leaderSelect = new TomSelect('#select-leader', {
             valueField: 'id',
-            searchField: ['name', 'email'],
-            placeholder: 'Buscar líder por nombre o área...',
+            searchField: ['name', 'email', 'category_name'],
+            placeholder: 'Buscar líder por nombre o categoría...',
             load: function (query, callback) {
                 if (query.length < 2) return callback();
                 fetch('<?= base_url('director/leaders/search') ?>?q=' + encodeURIComponent(query))
@@ -318,20 +318,22 @@
                 option: function (item, escape) {
                     const initial = escape(item.name.charAt(0).toUpperCase());
                     const name = escape(item.name);
+                    const category = item.category_name ? `<span class="text-primary">${escape(item.category_name)}</span>` : '';
                     return `<div class="d-flex align-items-center gap-3 ">
                         <span class="d-flex align-items-center justify-content-center bg-primary-subtle
                                      text-primary rounded-circle fw-bold flex-shrink-0"
                               style="width:36px;height:36px;">${initial}</span>
                         <div>
-                            <div class="fw-semibold small">${name}</div>
+                            <div class="fw-semibold small">${name}</br> ${category}</div>
                         </div>
                     </div>`;
                 },
                 item: function (item, escape) {
                     const name = escape(item.name);
+                    const category = item.category_name ? `<span class="badge bg-info-subtle text-info ms-2">${escape(item.category_name)}</span>` : '';
                     return `<div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-user-tie text-primary"></i>
-                        <span class="fw-medium">${name}</span>
+                        <span class="fw-medium">${name} ${category}</span>
                     </div>`;
                 },
                 no_results: function () {
@@ -445,7 +447,7 @@
             reassignLeaderSelect = new TomSelect('#select-leader-reassign', {
                 valueField: 'id',
                 labelField: 'name',
-                searchField: ['name', 'email'],
+                searchField: ['name', 'email', 'category_name'],
                 load: function (query, callback) {
                     if (query.length < 2) return callback();
                     fetch('<?= base_url('director/leaders/search') ?>?q=' + encodeURIComponent(query))
@@ -454,8 +456,14 @@
                         .catch(() => callback());
                 },
                 render: {
-                    option: (item, escape) => `<div class="py-2 px-3"><strong>${escape(item.name)}</strong></div>`,
-                    item: (item, escape) => `<div><i class="fa-solid fa-user-tie me-2"></i>${escape(item.name)}</div>`
+                    option: (item, escape) => {
+                        const category = item.category_name ? `<span class="badge bg-info-subtle text-info ms-2">${escape(item.category_name)}</span>` : '';
+                        return `<div class="py-2 px-3"><strong>${escape(item.name)}</strong> ${category}</div>`;
+                    },
+                    item: (item, escape) => {
+                        const category = item.category_name ? `<span class="badge bg-info-subtle text-info ms-2">${escape(item.category_name)}</span>` : '';
+                        return `<div><i class="fa-solid fa-user-tie me-2"></i>${escape(item.name)} ${category}</div>`;
+                    }
                 }
             });
         }
