@@ -4,6 +4,7 @@ namespace App\Controllers\Secretaria;
 
 use App\Controllers\BaseController;
 use App\Models\ClientsModel;
+use AuditActions;
 
 class ClientsController extends BaseController
 {
@@ -11,6 +12,7 @@ class ClientsController extends BaseController
 
     public function __construct()
     {
+        helper('audit');
         $this->clientsModel = new ClientsModel();
     }
     public function index()
@@ -39,6 +41,20 @@ class ClientsController extends BaseController
                 ]);
             }
 
+            // Get the inserted client ID
+            $newId = $this->clientsModel->insertID;
+
+            // Audit log for client creation
+            audit_log(
+                AuditActions::CLIENT_CREATED,
+                'clients',
+                $newId,
+                null,
+                null,
+                null,
+                $data
+            );
+
             return redirect()->to('secretaria/clients')->with('success', [
                 'text' => 'Cliente creado correctamente',
                 'position' => 'top-end'
@@ -60,6 +76,9 @@ class ClientsController extends BaseController
             // SOLUCIÓN: Agregamos 'id' al arreglo de campos que recibimos del POST
             $data = $this->request->getPost(['id', 'first_name', 'last_name', 'cedula', 'email', 'phone', 'address']);
 
+            // Pre-fetch old client data for audit log
+            $oldClient = $this->clientsModel->find($id);
+
             // Ahora el modelo encontrará $data['id'] y la validación is_unique funcionará perfecto
             if ($this->clientsModel->update($id, $data) === false) {
                 $errores = implode('<br>', $this->clientsModel->errors());
@@ -68,6 +87,17 @@ class ClientsController extends BaseController
                     'position' => 'center'
                 ]);
             }
+
+            // Audit log for client update
+            audit_log(
+                AuditActions::CLIENT_UPDATED,
+                'clients',
+                $id,
+                null,
+                null,
+                $oldClient,
+                $data
+            );
 
             return redirect()->to('secretaria/clients')->with('success', [
                 'text' => 'Cliente actualizado correctamente',

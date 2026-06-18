@@ -45,6 +45,7 @@ $routes->group('admin',['filter' => ['auth', 'role:admin']], function ($routes) 
     // $routes->get('audit', 'Admin\AuditController::index');
     // $routes->get('audit/assignments', 'Admin\AuditController::assignmentStatus');
     // $routes->get('audit/documents', 'Admin\AuditController::documentChanges');
+    $routes->get('audit/client-audit-log/(:num)', 'Admin\AuditController::clientAuditLog/$1');
 
     $routes->get('settings', 'Admin\SettingsController::index');
     $routes->post('settings/update', 'Admin\SettingsController::update');

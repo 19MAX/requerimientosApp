@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\ClientsModel;
 use App\Models\RolesModel;
+use AuditActions;
 
 /**
  * Controlador para gestión de clientes en el área de ADMINISTRADOR.
@@ -17,6 +18,7 @@ class ClientsController extends BaseController
 
     public function __construct()
     {
+        helper('audit');
         $this->clientsModel = new ClientsModel();
         $this->rolesModel = new RolesModel();
     }
@@ -68,6 +70,9 @@ class ClientsController extends BaseController
             // SOLUCIÓN: Agregamos 'id' al arreglo de campos que recibimos del POST
             $data = $this->request->getPost(['id', 'first_name', 'last_name', 'cedula', 'email', 'phone', 'address']);
 
+            // Pre-fetch old client data for audit log
+            $oldClient = $this->clientsModel->find($id);
+
             // Ahora el modelo encontrará $data['id'] y la validación is_unique funcionará perfecto
             if ($this->clientsModel->update($id, $data) === false) {
                 $errores = implode('<br>', $this->clientsModel->errors());
@@ -76,6 +81,17 @@ class ClientsController extends BaseController
                     'position' => 'center'
                 ]);
             }
+
+            // Audit log for client update
+            audit_log(
+                AuditActions::CLIENT_UPDATED,
+                'clients',
+                $id,
+                null,
+                null,
+                $oldClient,
+                $data
+            );
 
             return redirect()->to('admin/clients')->with('success', [
                 'text' => 'Cliente actualizado correctamente',

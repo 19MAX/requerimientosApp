@@ -156,4 +156,100 @@ class AuditController extends BaseController
         $builder->where('at.entity_type', 'assignments')
             ->where('at.action', 'assignment.status_changed');
     }
+
+    public function clientAuditLog(int $clientId)
+    {
+        $request = service('request');
+        $draw = $request->getGet('draw') ?? 1;
+        $start = $request->getGet('start') ?? 0;
+        $length = $request->getGet('length') ?? 10;
+        $searchValue = $request->getGet('search[value]') ?? '';
+
+        $builder = $this->db->table('audit_trail at')
+            ->select('
+                at.id,
+                at.action,
+                at.old_values,
+                at.new_values,
+                at.created_at,
+                CONCAT(u.name) AS user_name
+            ')
+            ->join('users u', 'u.id = at.user_id', 'left')
+            ->where('at.entity_type', 'clients')
+            ->where('at.entity_id', $clientId);
+
+        // Total records before filtering
+        $recordsTotal = $builder->countAllResults(false);
+
+        // Apply search if provided
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('u.name', $searchValue)
+                ->orLike('at.action', $searchValue)
+            ->groupEnd();
+        }
+
+        // Filtered records
+        $recordsFiltered = $builder->countAllResults(false);
+
+        // Get paginated results
+        $results = $builder
+            ->orderBy('at.created_at', 'DESC')
+            ->limit($length, $start)
+            ->get()
+            ->getResultArray();
+
+        // Build DataTable response
+        $data = array_map(function ($row) {
+            $fecha = date('d/m/Y H:i', strtotime($row['created_at']));
+            $usuario = $row['user_name'] ?? 'Desconocido';
+            $accion = $row['action'];
+            $cambios = $this->renderCambios($row['old_values'], $row['new_values']);
+
+            return [
+                'fecha' => $fecha,
+                'usuario' => $usuario,
+                'accion' => $accion,
+                'cambios' => $cambios,
+            ];
+        }, $results);
+
+        return $this->response->setJSON([
+            'draw' => (int) $draw,
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $data,
+        ]);
+    }
+
+    private function renderCambios(?string $oldValues, ?string $newValues): string
+    {
+        if ($oldValues === null && $newValues === null) {
+            return '—';
+        }
+
+        $oldObj = !empty($oldValues) ? json_decode($oldValues, true) : [];
+        $newObj = !empty($newValues) ? json_decode($newValues, true) : [];
+
+        if (!is_array($oldObj)) { $oldObj = []; }
+        if (!is_array($newObj)) { $newObj = []; }
+
+        $allKeys = array_unique(array_merge(array_keys($oldObj), array_keys($newObj)));
+        $changes = [];
+        $isCreation = empty($oldObj) && !empty($newObj);
+
+        foreach ($allKeys as $key) {
+            $oldVal = $oldObj[$key] ?? '';
+            $newVal = $newObj[$key] ?? '';
+            if (json_encode($oldVal) !== json_encode($newVal)) {
+                if ($isCreation) {
+                    $changes[] = "{$key}: — → '{$newVal}'";
+                } else {
+                    $changes[] = "{$key}: '{$oldVal}' → '{$newVal}'";
+                }
+            }
+        }
+
+        return !empty($changes) ? implode(', ', $changes) : 'Sin cambios';
+    }
 }

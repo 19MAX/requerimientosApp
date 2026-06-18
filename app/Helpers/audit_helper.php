@@ -144,6 +144,10 @@ class AuditActions
     const USER_LOGOUT    = 'user.logout';
     const USER_ACTIVATED = 'user.activated';
     const USER_DEACTIVATED = 'user.deactivated';
+
+    // Clientes
+    const CLIENT_CREATED = 'client.created';
+    const CLIENT_UPDATED = 'client.updated';
 }
 
 /**

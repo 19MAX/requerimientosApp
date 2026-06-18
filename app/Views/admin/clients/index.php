@@ -125,6 +125,38 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnVerHistorial">Ver historial</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit History Modal -->
+<div class="modal fade" id="auditHistoryModal" tabindex="-1" aria-labelledby="auditHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="auditHistoryModalLabel">Historial de Cambios</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-centered table-hover" id="auditTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Usuario</th>
+                                <th>Acción</th>
+                                <th>Cambios</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
@@ -135,6 +167,9 @@
 
 <?= $this->section('scripts') ?>
 <script>
+    let currentClientId = null;
+    let auditTable = null;
+
     new DataTable('#miTabla', {
         language: { url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json' },
         scrollX: true,
@@ -144,6 +179,7 @@
             },
         }
     });
+
     // Función para poblar el modal de visualización
     function openViewModal(user) {
         document.getElementById('view_cedula').textContent = user.cedula ?? 'N/A';
@@ -153,8 +189,97 @@
         document.getElementById('view_phone').textContent = user.phone ?? 'N/A';
         document.getElementById('view_address').textContent = user.address ?? 'N/A';
 
+        // Store current client ID for audit history
+        currentClientId = user.id;
+
         var viewModal = new bootstrap.Modal(document.getElementById('viewClientModal'));
         viewModal.show();
     }
+
+    // Función para renderizar cambios
+    function renderCambios(oldVals, newVals) {
+        if (!oldVals && !newVals) return '—';
+        let oldObj = {};
+        let newObj = {};
+
+        try {
+            oldObj = typeof oldVals === 'string' ? JSON.parse(oldVals) : (oldVals || {});
+        } catch (e) { oldObj = {}; }
+
+        try {
+            newObj = typeof newVals === 'string' ? JSON.parse(newVals) : (newVals || {});
+        } catch (e) { newObj = {}; }
+
+        const allKeys = [...new Set([...Object.keys(oldObj), ...Object.keys(newObj)])];
+        const changes = allKeys
+            .filter(k => JSON.stringify(oldObj[k]) !== JSON.stringify(newObj[k]))
+            .map(k => `${k}: '${oldObj[k] ?? ''}' → '${newObj[k] ?? ''}'`);
+
+        return changes.length ? changes.join(', ') : 'Sin cambios';
+    }
+
+    // Función para formatear acción
+    function formatAccion(action) {
+        const accionMap = {
+            'client.created': 'Creado',
+            'client.updated': 'Actualizado'
+        };
+        return accionMap[action] || action;
+    }
+
+    // Función para abrir modal de historial de auditoría
+    function openAuditHistoryModal() {
+        if (!currentClientId) return;
+
+        // Destroy existing DataTable if exists
+        if (auditTable) {
+            auditTable.destroy();
+            auditTable = null;
+        }
+
+        // Reinitialize DataTable with new client ID
+        auditTable = $('#auditTable').DataTable({
+            ajax: {
+                url: '/admin/audit/client-audit-log/' + currentClientId,
+                type: 'GET',
+                dataSrc: function (json) {
+                    // Show empty state message if no data
+                    if (json.data.length === 0) {
+                        $('#auditTable').closest('.modal-body').find('.table-responsive').after(
+                            '<p class="text-center text-muted py-4">Este cliente aun no tiene cambios registrados</p>'
+                        );
+                    }
+                    return json.data;
+                }
+            },
+            columns: [
+                { data: 'fecha' },
+                { data: 'usuario' },
+                {
+                    data: 'accion',
+                    render: function(data) {
+                        return formatAccion(data);
+                    }
+                },
+                {
+                    data: 'cambios'
+                }
+            ],
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json'
+            },
+            searching: false,
+            paging: true,
+            pageLength: 10,
+            lengthChange: false,
+            info: false
+        });
+
+        var auditModal = new bootstrap.Modal(document.getElementById('auditHistoryModal'));
+        auditModal.show();
+    }
+
+    // Bind click event to Ver historial button
+    document.getElementById('btnVerHistorial').addEventListener('click', openAuditHistoryModal);
 </script>
 <?= $this->endSection() ?>
