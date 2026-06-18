@@ -34,7 +34,7 @@ class UsersController extends BaseController
             ->where('users.role_id !=', 1)
             ->findAll();
 
-        $roles = $this->rolesModel->select('id, name')->where('id !=', 1)->findAll();
+        $roles = $this->rolesModel->select('id, name')->findAll();
         $categories = $this->leaderCategoryModel->findAll();
         $liderAreaRole = $this->rolesModel->where('slug', 'lider_area')->first();
 
@@ -42,7 +42,7 @@ class UsersController extends BaseController
             'users' => $users,
             'roles' => $roles,
             'categories' => $categories,
-            'liderAreaRoleId' => $liderAreaRole['id'] ?? null
+            'liderAreaRoleId' => $liderAreaRole['id'] ?? null,
         ]);
     }
 
@@ -111,6 +111,14 @@ class UsersController extends BaseController
         try {
 
             $id = $this->request->getPost('id');
+
+            $guardError = $this->assertCanModifyTarget((int) $id, $this->request->getPost());
+            if ($guardError !== null) {
+                return redirect()->back()->withInput()->with('error', [
+                    'text' => $guardError,
+                    'position' => 'center',
+                ]);
+            }
 
             $data = $this->request->getPost([
                 'id',
@@ -248,4 +256,46 @@ class UsersController extends BaseController
     //         'position' => 'top-end'
     //     ]);
     // }
+
+    private function countActiveAdmins(): int
+    {
+        return $this->userModel->where('role_id', 1)->where('is_active', 1)->countAllResults();
+    }
+
+    private function assertCanModifyTarget(int $targetId, ?array $post = null): ?string
+    {
+        $currentUserId = (int) session()->get('user_id');
+        $currentRoleId = (int) session()->get('role_id');
+        $isSelf        = ($targetId === $currentUserId);
+
+        $target = $this->userModel->find($targetId);
+        if (!$target) {
+            return 'Usuario no encontrado.';
+        }
+        $targetRoleId = (int) $target['role_id'];
+
+        // Guard 1: lateral block — no admin may modify ANOTHER admin. Self-edit allowed.
+        if ($targetRoleId === 1 && !$isSelf) {
+            log_message('warning', "UsersController: admin user_id={$currentUserId} attempted to modify other admin user_id={$targetId}");
+            return 'No puedes modificar a otro administrador.';
+        }
+
+        // Guards 2 & 3: last-admin self-lockout. Skipped if other admins exist.
+        if ($isSelf && $currentRoleId === 1 && $this->countActiveAdmins() === 1) {
+            // Guard 2: no self-deactivation when last.
+            $newIsActive = $post['is_active'] ?? null;
+            if ($newIsActive !== null && (int) $newIsActive === 0) {
+                log_message('warning', "UsersController: last active admin user_id={$currentUserId} attempted self-deactivation");
+                return 'No puedes desactivarte siendo el último administrador activo.';
+            }
+            // Guard 3: no self-demotion when last.
+            $newRoleId = $post['role_id'] ?? null;
+            if ($newRoleId !== null && (int) $newRoleId !== 1) {
+                log_message('warning', "UsersController: last active admin user_id={$currentUserId} attempted self-demotion to role_id={$newRoleId}");
+                return 'No puedes cambiar tu rol siendo el último administrador activo.';
+            }
+        }
+
+        return null;
+    }
 }

@@ -74,6 +74,7 @@
                                 <th>Estado</th>
                                 <th>Líder Asignado</th>
                                 <th>Fecha de Ingreso</th>
+                                <th>Fecha de Finalización</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -245,6 +246,11 @@ function initDataTable() {
             }},
             { data: 'created_at', name: 'd.created_at', render: function(data) {
                 if (!data) return 'N/A';
+                const date = new Date(data);
+                return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }},
+            { data: 'completed_at', name: 'completed_at', orderable: false, render: function(data) {
+                if (!data) return '<span class="text-muted">—</span>';
                 const date = new Date(data);
                 return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
             }},

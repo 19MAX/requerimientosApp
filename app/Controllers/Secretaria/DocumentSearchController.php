@@ -82,6 +82,12 @@ class DocumentSearchController extends BaseController
         $dateTo = $this->request->getGet('date_to') ?? '';
         $liderId = $this->request->getGet('lider_id') ?? '';
 
+        $completionSubquery = $this->db->table('activity_reports ar')
+            ->select('MAX(ar.created_at)')
+            ->join('assignments a2', 'a2.id = ar.assignment_id', 'inner')
+            ->where('a2.document_id = ' . 'd.id', null, false)
+            ->getCompiledSelect();
+
         $query = $this->db->table('documents d')
             ->select('
                 d.id,
@@ -89,6 +95,7 @@ class DocumentSearchController extends BaseController
                 d.title,
                 d.status,
                 d.created_at,
+                (' . $completionSubquery . ') AS completed_at,
                 CONCAT(c.first_name, " ", c.last_name) AS client_full_name,
                 c.cedula AS client_cedula,
                 u.name AS lider_name,

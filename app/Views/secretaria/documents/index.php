@@ -670,7 +670,6 @@
             option: function (item, escape) {
                 let initial = escape(item.name.charAt(0).toUpperCase());
                 let name = escape(item.name);
-                let email = item.email ? escape(item.email) : '';
 
                 return `<div class="py-2 px-3 d-flex align-items-center">
                         <div class="me-3">
@@ -680,7 +679,7 @@
                         </div>
                         <div>
                             <div class="mb-0 fw-semibold">${name}</div>
-                            <div class="text-muted small">${email}</div>
+                            <div class="text-muted small">Director de Distribución</div>
                         </div>
                     </div>`;
             },

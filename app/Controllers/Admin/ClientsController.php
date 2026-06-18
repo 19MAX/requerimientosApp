@@ -6,9 +6,10 @@ use App\Controllers\BaseController;
 use App\Models\ClientsModel;
 use App\Models\RolesModel;
 
-/*
-Controlador para gestión de clientes en el área de ADMINISTRADOR.
-
+/**
+ * Controlador para gestión de clientes en el área de ADMINISTRADOR.
+ * Solo lectura: el admin únicamente visualiza la información de los clientes.
+ */
 class ClientsController extends BaseController
 {
     protected $clientsModel;
@@ -89,25 +90,4 @@ class ClientsController extends BaseController
         }
     }
 
-    // public function delete()
-    // {
-    //     $id = $this->request->getPost('id');
-
-    //     // Validación básica de seguridad
-    //     if (!$id || !is_numeric($id)) {
-    //         return redirect()->to('admin/clients')->with('error', [
-    //             'text' => 'ID de cliente inválido',
-    //             'position' => 'center'
-    //         ]);
-    //     }
-
-    //     $this->clientsModel->delete($id);
-
-    //     return redirect()->to('admin/clients')->with('success', [
-    //         'text' => 'Cliente eliminado correctamente',
-    //         'position' => 'top-end'
-    //     ]);
-    // }
-
 }
- */

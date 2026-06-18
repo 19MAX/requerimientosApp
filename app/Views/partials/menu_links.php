@@ -78,6 +78,9 @@
                 <span class="text">Categorías de Líderes</span>
             </a>
         </li>
+        ----------------------------------------------------------------------------
+        Fin de bloque opcional --- IGNORE ---
+        ---------------------------------------------------------------------------->
         <li class="nav-item">
             <a class="nav-link" href="<?= base_url('admin/clients') ?>">
                 <span class="nav-icon">
@@ -94,9 +97,6 @@
                 <span class="text">Gestión de Clientes</span>
             </a>
         </li>
-        ----------------------------------------------------------------------------
-        Fin de bloque opcional --- IGNORE ---
-        ---------------------------------------------------------------------------->
 
         <!-- <li class="nav-item">
             <a class="nav-link" href="<?= base_url('admin/audit/documents') ?>">
